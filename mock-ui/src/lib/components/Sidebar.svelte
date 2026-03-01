@@ -11,7 +11,7 @@
   </div>
   
   <div class="p-4 flex-1 overflow-y-auto">
-    <button class="w-full flex items-center gap-2 text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md mb-6 transition-colors">
+    <button class="w-full flex items-center gap-2 text-sm font-medium bg-[#0f172a] text-primary-foreground hover:bg-[#1e293b] px-4 py-2 rounded-md mb-6 transition-colors">
       <Plus class="w-4 h-4" />
       Start New LAW SUIT
     </button>

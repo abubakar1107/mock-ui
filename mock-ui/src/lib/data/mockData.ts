@@ -19,6 +19,22 @@ COMPLAINT FOR BREACH OF CONTRACT
 7. Defendant's failure to pay the bonus constitutes a material breach of the Agreement.
 WHEREFORE, Plaintiff prays for judgment against Defendant for compensatory damages in the amount of $30,000, plus interest, costs, and attorney's fees.`,
 
+  analysisSteps: [
+    { text: "Parsing complaint document structure..." },
+    { text: "Identifying cause of action: Breach of Contract..." },
+    { text: "Scanning for jurisdictional and procedural defects..." },
+    { text: "Running adversarial viability assessment..." },
+    { text: "Evaluating strength of Answer vs. Motion to Dismiss..." },
+    { text: "Analysis complete. Two viable paths identified." },
+  ],
+
+  factProcessSteps: [
+    { text: "Isolating factual allegations from paragraphs 1-7..." },
+    { text: "Cross-referencing claims with employment agreement terms..." },
+    { text: "Classifying each claim by default response (admit/deny)..." },
+    { text: "7 factual claims ready for review." },
+  ],
+
   facts: [
     { id: 1, text: "Plaintiff John Doe resides in San Francisco, California.", status: "admit" },
     { id: 2, text: "Defendant Tech Corp Inc. is a Delaware corporation based in San Jose, CA.", status: "admit" },
@@ -45,17 +61,36 @@ AFFIRMATIVE DEFENSES
 1. Plaintiff's claims are barred by his own material breach of the Agreement.
 2. Plaintiff failed to satisfy the conditions precedent required to earn the performance bonus.`,
 
+  mtdDraft: `DEFENDANT'S MOTION TO DISMISS PLAINTIFF'S COMPLAINT
+
+Defendant Tech Corp Inc. ("Defendant"), by and through its undersigned counsel, hereby moves to dismiss Plaintiff John Doe's ("Plaintiff") Complaint pursuant to Federal Rule of Civil Procedure 12(b)(6) for failure to state a claim upon which relief can be granted.
+
+MEMORANDUM OF POINTS AND AUTHORITIES
+
+I. INTRODUCTION
+Plaintiff brings a single claim for breach of contract based on an alleged failure to pay a performance bonus. However, the Complaint fails to allege any facts demonstrating that Plaintiff met the conditions precedent required to earn the bonus under the express terms of the employment agreement.
+
+II. ARGUMENT
+A. The Complaint Fails to Allege Satisfaction of Conditions Precedent
+Under California law, a plaintiff asserting a breach of contract claim based on a conditional obligation must plead satisfaction or excuse of the condition. Plaintiff's conclusory allegation that he "fully performed all obligations" is insufficient under Twombly and Iqbal to establish that he met the specific, objective performance metrics required for the discretionary bonus.
+
+B. The Discretionary Nature of the Bonus Precludes a Breach Claim
+The "Agreement" referenced in the Complaint explicitly makes the performance bonus discretionary, subject to final approval by the Board of Directors. 
+
+CONCLUSION
+For the foregoing reasons, Defendant respectfully requests that the Court dismiss Plaintiff's Complaint in its entirety.`,
+
   simulationLogs: [
-    { step: 1, title: "Initial readiness", description: "System initialized and context loaded.", status: "completed" },
-    { step: 2, title: "Starting Opposing council team", description: "Initializing adversary simulation agents.", status: "completed" },
-    { step: 3, title: "Reading the draft", description: "Opposing council agent is reviewing the drafted Answer.", status: "completed" },
-    { step: 4, title: "Opposing council attacked the first argument", description: "Adversary agent filed a mock Motion to Strike Affirmative Defenses, arguing they lack sufficient factual specificity under Twombly/Iqbal standards.", status: "completed" },
-    { step: 5, title: "Your agent responded", description: "Drafted an opposition to the Motion to Strike, citing specific instances of Plaintiff's performance failures documented in HR records.", status: "completed" },
-    { step: 6, title: "Opposing council attacked on second argument", description: "Adversary agent argued that 'cause' for termination was not properly documented according to the employee handbook procedures.", status: "completed" },
-    { step: 7, title: "Your agent responded", description: "Incorporated an additional affirmative defense regarding at-will employment provisions superseding handbook guidelines.", status: "completed" },
-    { step: 8, title: "Simulation on-going", description: "Running final edge-case scenarios...", status: "completed" },
-    { step: 9, title: "Refining the document", description: "Applying learnings from the simulation to strengthen the Answer.", status: "completed" },
-    { step: 10, title: "Fortifying its weaknesses", description: "Adding specific factual predicates to Affirmative Defense No. 1.", status: "completed" },
-    { step: 11, title: "Statement done", description: "Final review of the generated document.", status: "completed" }
+    { step: 1, title: "Initial readiness", description: "System initialized and context loaded.", icon: "check", actor: "system" },
+    { step: 2, title: "Starting Opposing council team", description: "Initializing adversary simulation agents.", icon: "cpu", actor: "system" },
+    { step: 3, title: "Reading the draft", description: "Opposing council agent is reviewing the drafted document.", icon: "file", actor: "opponent" },
+    { step: 4, title: "Opposing council attacked the first argument", description: "Adversary agent filed a mock challenge against the primary argument, arguing it lacks sufficient factual specificity under Twombly/Iqbal standards.", icon: "swords", actor: "opponent" },
+    { step: 5, title: "Your agent responded", description: "Drafted an opposition citing specific instances of Plaintiff's performance failures documented in HR records.", icon: "shield", actor: "agent" },
+    { step: 6, title: "Opposing council attacked on second argument", description: "Adversary agent argued that 'cause' for termination was not properly documented according to the employee handbook.", icon: "swords", actor: "opponent" },
+    { step: 7, title: "Your agent responded", description: "Incorporated an additional defense regarding at-will employment provisions superseding handbook guidelines.", icon: "shield", actor: "agent" },
+    { step: 8, title: "Running edge-case scenarios", description: "Testing arguments against potential counter-claims and edge cases...", icon: "cpu", actor: "system" },
+    { step: 9, title: "Refining the document", description: "Applying learnings from the simulation to strengthen the document.", icon: "file", actor: "agent" },
+    { step: 10, title: "Fortifying its weaknesses", description: "Adding specific factual predicates to the defenses.", icon: "shield", actor: "agent" },
+    { step: 11, title: "Final draft ready", description: "All simulation rounds complete. Document finalized.", icon: "check", actor: "system" }
   ]
 };

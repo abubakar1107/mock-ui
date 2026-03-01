@@ -1,228 +1,389 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button";
   import { Textarea } from "$lib/components/ui/textarea";
-  import * as Select from "$lib/components/ui/select";
-  import * as Card from "$lib/components/ui/card";
-  import { UploadCloud, FileText, ChevronRight, Loader2, CheckCircle2 } from "lucide-svelte";
+  import {
+    UploadCloud, FileText, ChevronRight, Loader2, CheckCircle2, Cpu,
+    ShieldAlert, Swords, Search, Globe, Library, Download, Paperclip,
+    SendHorizonal, Sparkles, ArrowRight, Zap, Scale
+  } from "lucide-svelte";
   import { mockData } from "$lib/data/mockData";
+  import { tick } from "svelte";
 
-  // State machine: 1: Setup, 2: Analyzing, 3: Facts, 4: Simulation, 5: Final
   let currentState = $state(1);
+  let selectedDraftType = $state<'answer' | 'mtd'>('answer');
+
+  // State 2: analysis logs then path cards
+  let analysisStep = $state(0);
+  const totalAnalysisSteps = mockData.analysisSteps.length;
+
+  // State 3: process steps + facts
+  let factStep = $state(0);
+  const totalFactSteps = mockData.factProcessSteps.length + mockData.facts.length;
+
+  // State 4: simulation steps
+  let simStep = $state(0);
+
+  let scrollContainer: HTMLDivElement | undefined = $state();
+
+  async function scrollToBottom() {
+    await tick();
+    if (scrollContainer) {
+      scrollContainer.scrollTo({ top: scrollContainer.scrollHeight, behavior: 'smooth' });
+    }
+  }
 
   function nextState() {
-    if (currentState < 5) currentState++;
+    if (currentState === 2) {
+      if (analysisStep < totalAnalysisSteps - 1) {
+        analysisStep++;
+        scrollToBottom();
+      } else {
+        // analysis logs done, but cards are now visible — next click advances state
+        currentState++;
+      }
+    } else if (currentState === 3) {
+      if (factStep < totalFactSteps - 1) {
+        factStep++;
+        scrollToBottom();
+      } else {
+        currentState++;
+      }
+    } else if (currentState === 4) {
+      if (simStep < mockData.simulationLogs.length - 1) {
+        simStep++;
+        scrollToBottom();
+      } else {
+        currentState++;
+      }
+    } else if (currentState < 5) {
+      currentState++;
+    }
   }
-  
+
+  function selectPath(type: 'answer' | 'mtd') {
+    selectedDraftType = type;
+    currentState = 3;
+  }
+
   function prevState() {
     if (currentState > 1) currentState--;
+  }
+
+  function actorStyle(actor: string) {
+    if (actor === 'opponent') return { dot: 'bg-red-500', bg: 'bg-red-50 border-red-200', title: 'text-red-900', desc: 'text-red-700' };
+    if (actor === 'agent') return { dot: 'bg-emerald-500', bg: 'bg-emerald-50 border-emerald-200', title: 'text-emerald-900', desc: 'text-emerald-700' };
+    return { dot: 'bg-slate-400', bg: 'bg-slate-50 border-slate-200', title: 'text-slate-900', desc: 'text-slate-600' };
   }
 </script>
 
 <div class="h-full flex flex-col">
-  <div class="flex items-center justify-between mb-6">
-    <h1 class="text-2xl font-bold tracking-tight">
-      {#if currentState === 1}
-        Start New LAW SUIT
-      {:else if currentState === 2}
-        Analyzing Documents
-      {:else if currentState === 3}
-        Fact Review
-      {:else if currentState === 4}
-        Agent Simulation
-      {:else}
-        Final Draft Ready
+  <!-- Top bar -->
+  <div class="flex items-center justify-between mb-4 shrink-0">
+    <h1 class="text-xl font-semibold tracking-tight">
+      {#if currentState === 1}Start New LAW SUIT
+      {:else if currentState === 2}Analyzing Documents
+      {:else if currentState === 3}Fact Review
+      {:else if currentState === 4}Agent Simulation
+      {:else}Final Draft Ready
       {/if}
     </h1>
-    
     <div class="flex items-center gap-2">
       {#if currentState > 1}
-        <Button variant="outline" onclick={prevState}>Back</Button>
+        <Button variant="outline" size="sm" onclick={prevState}>Back</Button>
       {/if}
       {#if currentState < 5}
-        <Button onclick={nextState}>
+        <Button size="sm" onclick={nextState} class="bg-[#0f172a] hover:bg-[#1e293b] text-white">
           Next Step <ChevronRight class="w-4 h-4 ml-1" />
         </Button>
       {/if}
     </div>
   </div>
 
-  <div class="flex-1 bg-background rounded-lg border shadow-sm p-6 overflow-y-auto">
+  <!-- Canvas -->
+  <div class="flex-1 overflow-y-auto" bind:this={scrollContainer}>
+
+    <!-- ========== STATE 1 ========== -->
     {#if currentState === 1}
-      <!-- State 1: Initial Setup -->
-      <div class="grid grid-cols-3 gap-6 h-full">
-        <!-- Upload Area -->
-        <div class="col-span-1 border-2 border-dashed rounded-lg flex flex-col items-center justify-center p-6 text-center text-muted-foreground hover:bg-muted/50 transition-colors cursor-pointer">
-          <UploadCloud class="w-12 h-12 mb-4 text-muted-foreground/50" />
-          <p class="font-medium text-foreground mb-1">Upload the documents</p>
-          <p class="text-sm">Drag and drop or click to select</p>
-          
-          <!-- Mock uploaded file -->
-          <div class="mt-6 w-full p-3 bg-muted rounded-md flex items-center gap-3 text-left">
-            <FileText class="w-5 h-5 text-primary" />
-            <div class="flex-1 overflow-hidden">
-              <p class="text-sm font-medium text-foreground truncate">Complaint_Doe_v_TechCorp.pdf</p>
-              <p class="text-xs">2.4 MB</p>
-            </div>
-            <CheckCircle2 class="w-4 h-4 text-green-500" />
-          </div>
-        </div>
-
-        <!-- Prompt Area -->
-        <div class="col-span-2 flex flex-col gap-4">
-          <div class="flex-1 flex flex-col">
-            <label for="prompt" class="text-sm font-medium mb-2">Prompt the agent, what to be done</label>
-            <Textarea 
-              id="prompt" 
-              placeholder="e.g., Analyze this complaint and draft an answer with affirmative defenses..." 
-              class="flex-1 resize-none text-base p-4"
-              value="Please analyze the attached complaint from John Doe. Draft an Answer on behalf of Tech Corp Inc. Include appropriate affirmative defenses based on the employment agreement."
-            />
-          </div>
-          
-          <div class="flex items-center gap-4">
-            <div class="flex-1">
-              <label class="text-sm font-medium mb-2 block">Tools available for the agent</label>
-              <Select.Root type="single">
-                <Select.Trigger class="w-full">
-                  Search corpus, Google Search...
-                </Select.Trigger>
-                <Select.Content>
-                  <Select.Item value="corpus">Search corpus</Select.Item>
-                  <Select.Item value="google">Google Search</Select.Item>
-                  <Select.Item value="movements">Search Case movements/statues</Select.Item>
-                </Select.Content>
-              </Select.Root>
-            </div>
-            <div class="pt-7">
-              <Button size="lg" onclick={nextState}>Start Agent</Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    {/if}
-    
-    {#if currentState === 2}
-      <!-- State 2: Analyzing & Initial Draft -->
-      <div class="h-full flex flex-col items-center justify-center space-y-8">
-        <div class="flex flex-col items-center space-y-4">
-          <Loader2 class="w-16 h-16 animate-spin text-primary" />
-          <h2 class="text-xl font-medium">Analyzing the document...</h2>
-          <p class="text-muted-foreground text-center max-w-md">
-            The agent is extracting facts, identifying legal arguments, and preparing the initial draft.
-          </p>
-        </div>
-        
-        <div class="pt-8">
-          <Button size="lg" onclick={nextState} class="gap-2">
-            <FileText class="w-5 h-5" />
-            Draft answer. View answer in DOCX
-          </Button>
-        </div>
-      </div>
-    {/if}
-
-    {#if currentState === 3}
-      <!-- State 3: Fact Review -->
-      <div class="h-full flex flex-col gap-6">
-        <div class="flex items-center gap-3 text-muted-foreground bg-muted/30 p-4 rounded-lg border">
-          <Loader2 class="w-5 h-5 animate-spin text-primary" />
-          <span>Analyzing the corpus and preparing the facts...</span>
-        </div>
-        
-        <div class="flex-1 overflow-y-auto">
-          <Card.Root>
-            <Card.Header>
-              <Card.Title>Fact Verification</Card.Title>
-              <Card.Description>Review and classify the extracted facts before proceeding.</Card.Description>
-            </Card.Header>
-            <Card.Content>
-              <div class="space-y-4">
-                {#each mockData.facts as fact}
-                  <div class="flex items-start justify-between gap-4 p-4 border rounded-lg bg-background">
-                    <p class="text-sm flex-1 mt-1">{fact.text}</p>
-                    <div class="flex items-center gap-2 shrink-0">
-                      <Button variant={fact.status === 'admit' ? 'default' : 'outline'} size="sm" class="w-20">Admit</Button>
-                      <Button variant={fact.status === 'deny' ? 'destructive' : 'outline'} size="sm" class="w-20">Deny</Button>
-                      <Button variant="outline" size="sm" class="w-24">Substitute</Button>
-                    </div>
-                  </div>
-                {/each}
+      <div class="h-full flex flex-col justify-between">
+        <!-- Hero -->
+        <div class="flex-1 flex flex-col items-center justify-center px-6 py-8">
+          <div class="w-full max-w-4xl space-y-6">
+            <!-- Tagline -->
+            <div class="text-center space-y-3 mb-4">
+              <div class="inline-flex items-center gap-2 bg-primary/5 border border-primary/10 rounded-full px-4 py-1.5 text-xs font-medium text-primary mx-auto">
+                <Zap class="w-3.5 h-3.5" />
+                Draft &rarr; Attack &rarr; Fortify
               </div>
-            </Card.Content>
-          </Card.Root>
-        </div>
-        
-        <div class="h-32 border rounded-lg bg-black text-green-400 p-4 font-mono text-sm overflow-y-auto">
-          <p>> Using fact 1...</p>
-          <p>> Using fact 2...</p>
-          <p>> Drafting the document...</p>
-          <p class="animate-pulse">_</p>
+              <h2 class="text-4xl font-bold tracking-tight leading-tight">
+                Battle-test your legal strategy<br/>before the courtroom does.
+              </h2>
+              <p class="text-muted-foreground text-lg max-w-2xl mx-auto">
+                Simulate an entire lawsuit with adversarial AI. SEER drafts, opposing counsel attacks, and your document comes out stronger.
+              </p>
+            </div>
+
+            <!-- Input box -->
+            <div class="bg-background border rounded-2xl shadow-lg overflow-hidden">
+              <div class="p-6">
+                <Textarea
+                  placeholder="Describe your case and what SEER should do..."
+                  class="border-0 shadow-none focus-visible:ring-0 resize-none text-base p-0 min-h-[140px] placeholder:text-muted-foreground/50"
+                  value="Please analyze the attached complaint from John Doe. Draft an Answer on behalf of Tech Corp Inc. Include appropriate affirmative defenses based on the employment agreement."
+                />
+              </div>
+
+              <div class="px-6 pb-5 flex items-center justify-between border-t pt-4">
+                <div class="flex items-center gap-3 flex-wrap">
+                  <div class="flex items-center gap-2 bg-slate-100 rounded-full pl-2.5 pr-3 py-1.5 text-sm">
+                    <FileText class="w-4 h-4 text-blue-600" />
+                    <span class="font-medium text-foreground">Complaint_Doe_v_TechCorp.pdf</span>
+                    <CheckCircle2 class="w-3.5 h-3.5 text-emerald-500" />
+                  </div>
+                  <button class="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    <Paperclip class="w-4 h-4" />
+                    Attach more
+                  </button>
+                </div>
+
+                <Button onclick={nextState} class="bg-[#0f172a] hover:bg-[#1e293b] rounded-full pl-6 pr-5 py-2.5 gap-2 text-base">
+                  Start Agent
+                  <SendHorizonal class="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+
+            <!-- Tools & capabilities -->
+            <div class="flex items-center justify-center gap-4 flex-wrap pt-2">
+              <div class="flex items-center gap-2 bg-background border rounded-full px-4 py-2 text-sm shadow-sm">
+                <Library class="w-4 h-4 text-indigo-500" />
+                <span>Search corpus</span>
+              </div>
+              <div class="flex items-center gap-2 bg-background border rounded-full px-4 py-2 text-sm shadow-sm">
+                <Globe class="w-4 h-4 text-blue-500" />
+                <span>Google Search</span>
+              </div>
+              <div class="flex items-center gap-2 bg-background border rounded-full px-4 py-2 text-sm shadow-sm">
+                <Search class="w-4 h-4 text-amber-600" />
+                <span>Case movements</span>
+              </div>
+              <div class="flex items-center gap-2 bg-background border rounded-full px-4 py-2 text-sm shadow-sm">
+                <Scale class="w-4 h-4 text-red-500" />
+                <span>Adversarial simulation</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     {/if}
 
-    {#if currentState === 4 || currentState === 5}
-      <!-- State 4 & 5: Simulation Logs -->
-      <div class="h-full flex gap-6">
-        <!-- Left side: Stepper Logs -->
-        <div class="flex-1 border rounded-lg bg-background p-6 overflow-y-auto">
-          <h3 class="font-semibold text-lg mb-6">Simulation Progress</h3>
-          <div class="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-border before:to-transparent">
-            {#each mockData.simulationLogs as log, i}
-              {#if currentState === 5 || i < 8}
-                <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                  <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-background bg-primary text-primary-foreground shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
-                    <CheckCircle2 class="w-5 h-5" />
-                  </div>
-                  <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded border shadow-sm bg-card">
-                    <div class="flex items-center justify-between mb-1">
-                      <h4 class="font-semibold text-sm">{log.title}</h4>
-                      <span class="text-xs text-muted-foreground">Step {log.step}</span>
-                    </div>
-                    <p class="text-sm text-muted-foreground">{log.description}</p>
-                  </div>
-                </div>
+    <!-- ========== STATE 2: Analysis logs then path cards ========== -->
+    {#if currentState === 2}
+      <div class="max-w-3xl mx-auto space-y-3 py-4">
+        <!-- Analysis process steps -->
+        {#each mockData.analysisSteps as step, i}
+          {#if i <= analysisStep}
+            <div class="flex items-center gap-3 py-2.5 px-4 rounded-lg bg-slate-50 border border-slate-200 text-sm">
+              {#if i < analysisStep || analysisStep >= totalAnalysisSteps - 1}
+                <CheckCircle2 class="w-4 h-4 text-emerald-500 shrink-0" />
+              {:else}
+                <Loader2 class="w-4 h-4 text-primary animate-spin shrink-0" />
               {/if}
-            {/each}
-            
-            {#if currentState === 4}
-              <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
-                <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-background bg-muted text-muted-foreground shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
-                  <Loader2 class="w-5 h-5 animate-spin" />
+              <span class="text-slate-700">{step.text}</span>
+            </div>
+          {/if}
+        {/each}
+
+        <!-- Processing indicator (while logs still revealing) -->
+        {#if analysisStep < totalAnalysisSteps - 1}
+          <div class="flex items-center gap-3 py-3 px-4 text-sm text-muted-foreground">
+            <Loader2 class="w-4 h-4 animate-spin" />
+            <span>Analyzing...</span>
+          </div>
+        {/if}
+
+        <!-- Path selection cards (only after all logs are done) -->
+        {#if analysisStep >= totalAnalysisSteps - 1}
+          <div class="pt-6 pb-2 text-center">
+            <p class="text-muted-foreground text-sm">
+              SEER identified two viable strategies. Select a path to proceed:
+            </p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <button onclick={() => selectPath('answer')} class="group flex flex-col items-start gap-3 p-6 rounded-xl border-2 border-transparent bg-background shadow-sm hover:border-emerald-500 hover:shadow-md transition-all text-left">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
+                  <FileText class="w-5 h-5 text-emerald-700" />
                 </div>
-                <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded border border-dashed shadow-sm bg-muted/50">
-                  <h4 class="font-semibold text-sm text-muted-foreground">Processing next simulation step...</h4>
+                <span class="text-lg font-semibold">Draft Answer</span>
+              </div>
+              <span class="text-sm text-muted-foreground leading-relaxed">Respond to each allegation with admissions, denials, and affirmative defenses.</span>
+              <div class="flex items-center gap-1.5 text-sm text-emerald-600 font-medium mt-auto">
+                <Sparkles class="w-4 h-4" />
+                Recommended (65%)
+              </div>
+            </button>
+
+            <button onclick={() => selectPath('mtd')} class="group flex flex-col items-start gap-3 p-6 rounded-xl border-2 border-transparent bg-background shadow-sm hover:border-blue-500 hover:shadow-md transition-all text-left">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
+                  <FileText class="w-5 h-5 text-blue-700" />
+                </div>
+                <span class="text-lg font-semibold">Draft MTD</span>
+              </div>
+              <span class="text-sm text-muted-foreground leading-relaxed">Move to dismiss on grounds of failure to state a claim under Rule 12(b)(6).</span>
+              <div class="flex items-center gap-1.5 text-sm text-blue-600 font-medium mt-auto">
+                <ArrowRight class="w-4 h-4" />
+                Motion to Dismiss
+              </div>
+            </button>
+          </div>
+        {/if}
+      </div>
+    {/if}
+
+    <!-- ========== STATE 3: Fact Review ========== -->
+    {#if currentState === 3}
+      <div class="max-w-3xl mx-auto space-y-3 py-4">
+        {#each mockData.factProcessSteps as step, i}
+          {#if i <= factStep}
+            <div class="flex items-center gap-3 py-2.5 px-4 rounded-lg bg-slate-50 border border-slate-200 text-sm">
+              {#if i < factStep || factStep >= mockData.factProcessSteps.length}
+                <CheckCircle2 class="w-4 h-4 text-emerald-500 shrink-0" />
+              {:else}
+                <Loader2 class="w-4 h-4 text-primary animate-spin shrink-0" />
+              {/if}
+              <span class="text-slate-700">{step.text}</span>
+            </div>
+          {/if}
+        {/each}
+
+        {#if factStep >= mockData.factProcessSteps.length}
+          <div class="pt-5 pb-2">
+            <h3 class="font-semibold text-sm text-muted-foreground uppercase tracking-wider">Extracted Facts &mdash; Review each</h3>
+          </div>
+          {#each mockData.facts as fact, i}
+            {#if i <= factStep - mockData.factProcessSteps.length}
+              {@const isLatest = i === factStep - mockData.factProcessSteps.length && factStep < totalFactSteps - 1}
+              <div class="flex items-start justify-between gap-4 p-4 rounded-xl border bg-background {isLatest ? 'ring-2 ring-primary/30 border-primary/40' : ''}">
+                <div class="flex items-start gap-3 flex-1">
+                  <span class="text-xs font-mono bg-muted rounded-md px-2 py-1 text-muted-foreground shrink-0 mt-0.5">F{fact.id}</span>
+                  <p class="text-sm font-medium leading-relaxed">{fact.text}</p>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <button class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors {fact.status === 'admit' ? 'bg-[#0f172a] text-white' : 'bg-muted hover:bg-muted/80 text-foreground'}">
+                    Admit
+                  </button>
+                  <button class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors {fact.status === 'deny' ? 'bg-red-600 text-white' : 'bg-muted hover:bg-muted/80 text-foreground'}">
+                    Deny
+                  </button>
+                  <button class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-muted hover:bg-muted/80 text-foreground transition-colors">
+                    Substitute
+                  </button>
                 </div>
               </div>
             {/if}
+          {/each}
+        {/if}
+
+        {#if factStep < totalFactSteps - 1}
+          <div class="flex items-center gap-3 py-3 px-4 text-sm text-muted-foreground">
+            <Loader2 class="w-4 h-4 animate-spin" />
+            <span>Processing...</span>
+          </div>
+        {/if}
+      </div>
+    {/if}
+
+    <!-- ========== STATE 4: Simulation Stepper ========== -->
+    {#if currentState === 4}
+      <div class="max-w-3xl mx-auto py-4">
+        {#each mockData.simulationLogs as log, i}
+          {#if i <= simStep}
+            {@const style = actorStyle(log.actor)}
+            <div class="flex items-stretch gap-4 relative">
+              <div class="flex flex-col items-center w-10 shrink-0">
+                <div class="w-10 h-10 rounded-full {style.dot} flex items-center justify-center text-white shadow-sm shrink-0">
+                  {#if log.icon === 'cpu'}
+                    <Cpu class="w-4 h-4" />
+                  {:else if log.icon === 'file'}
+                    <FileText class="w-4 h-4" />
+                  {:else if log.icon === 'swords'}
+                    <Swords class="w-4 h-4" />
+                  {:else if log.icon === 'shield'}
+                    <ShieldAlert class="w-4 h-4" />
+                  {:else}
+                    <CheckCircle2 class="w-4 h-4" />
+                  {/if}
+                </div>
+                {#if i < simStep || (i === simStep && simStep < mockData.simulationLogs.length - 1)}
+                  <div class="w-0.5 flex-1 {style.dot} opacity-30"></div>
+                {/if}
+              </div>
+
+              <div class="flex-1 pb-6">
+                <div class="rounded-xl border p-4 {style.bg}">
+                  <div class="flex items-center justify-between mb-1">
+                    <h4 class="font-semibold text-sm {style.title}">{log.title}</h4>
+                    <span class="text-[11px] font-mono text-muted-foreground bg-white/60 rounded px-1.5 py-0.5">Step {log.step}</span>
+                  </div>
+                  <p class="text-sm {style.desc}">{log.description}</p>
+                </div>
+              </div>
+            </div>
+          {/if}
+        {/each}
+
+        {#if simStep < mockData.simulationLogs.length - 1}
+          <div class="flex items-stretch gap-4">
+            <div class="flex flex-col items-center w-10 shrink-0">
+              <div class="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
+                <Loader2 class="w-4 h-4 animate-spin" />
+              </div>
+            </div>
+            <div class="flex-1 pb-6">
+              <div class="rounded-xl border border-dashed p-4 bg-muted/20">
+                <span class="text-sm text-muted-foreground">Processing next step...</span>
+              </div>
+            </div>
+          </div>
+        {/if}
+      </div>
+    {/if}
+
+    <!-- ========== STATE 5: Final Draft ========== -->
+    {#if currentState === 5}
+      <div class="max-w-4xl mx-auto space-y-6 py-4">
+        <div class="flex items-center gap-3 p-4 rounded-xl bg-emerald-50 border border-emerald-200">
+          <CheckCircle2 class="w-6 h-6 text-emerald-600 shrink-0" />
+          <div>
+            <h3 class="font-semibold text-emerald-900">Simulation Complete</h3>
+            <p class="text-sm text-emerald-700">Your {selectedDraftType === 'answer' ? 'Answer to Complaint' : 'Motion to Dismiss'} is ready for review.</p>
           </div>
         </div>
-        
-        <!-- Right side: Document Preview -->
-        <div class="w-1/3 flex flex-col gap-4">
-          <Card.Root class="flex-1 flex flex-col overflow-hidden">
-            <Card.Header class="py-3 border-b bg-muted/30">
-              <Card.Title class="text-sm flex items-center justify-between">
-                Draft Document
-                {#if currentState === 5}
-                  <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Final Ready</span>
-                {:else}
-                  <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full animate-pulse">Updating...</span>
-                {/if}
-              </Card.Title>
-            </Card.Header>
-            <Card.Content class="p-0 flex-1 overflow-y-auto">
-              <div class="p-4 text-xs font-serif whitespace-pre-wrap text-muted-foreground">
-                {mockData.answerDraft}
-              </div>
-            </Card.Content>
-          </Card.Root>
-          
-          <Button variant="outline" class="w-full gap-2">
-            <FileText class="w-4 h-4" />
-            Open editable canvas
-          </Button>
+
+        <div class="bg-white border rounded-xl shadow-sm overflow-hidden">
+          <div class="py-3 px-5 border-b bg-slate-50 flex items-center justify-between">
+            <span class="font-semibold text-sm">{selectedDraftType === 'answer' ? 'Answer to Complaint' : 'Motion to Dismiss'} &mdash; Final Draft</span>
+            <div class="flex items-center gap-2">
+              <span class="text-xs bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full font-medium">Ready</span>
+              <Button variant="outline" size="sm" class="gap-1.5 text-xs">
+                <Download class="w-3.5 h-3.5" />
+                Export DOCX
+              </Button>
+            </div>
+          </div>
+          <div class="p-8 max-h-[60vh] overflow-y-auto">
+            <div class="text-sm font-serif whitespace-pre-wrap text-foreground/80 leading-relaxed">
+              {selectedDraftType === 'answer' ? mockData.answerDraft : mockData.mtdDraft}
+            </div>
+          </div>
         </div>
+
+        <Button variant="outline" class="w-full gap-2 py-3">
+          <FileText class="w-4 h-4" />
+          Open editable canvas
+        </Button>
       </div>
     {/if}
   </div>
