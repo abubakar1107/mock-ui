@@ -1,35 +1,115 @@
 <script lang="ts">
-  import { Plus, Briefcase, FileText } from 'lucide-svelte';
+  import { Plus, FileText, CheckCircle2, Circle, ShieldAlert, Lock } from 'lucide-svelte';
+  import { workflow } from '$lib/stores/workflow.svelte';
+  import { prosecutionDocs, defenseDocs, type WorkflowDoc } from '$lib/data/mockData';
+
+  let docs = $derived(workflow.role === 'prosecution' ? prosecutionDocs : workflow.role === 'defense' ? defenseDocs : []);
+
+  function getPhaseLabel(phase: number): string {
+    if (workflow.role === 'prosecution') {
+      return ['Phase 0 · Pre-Suit', 'Phase 1 · Initiation', 'Phase 2 · Pleadings'][phase] ?? '';
+    }
+    return ['Phase 0 · Preserve', 'Phase 1 · Respond', 'Phase 2 · Pleadings'][phase] ?? '';
+  }
+
+  function isDocVisible(doc: WorkflowDoc): boolean {
+    if (!doc.branch) return true;
+    if (workflow.role === 'prosecution') {
+      if (doc.branch === 'mtd') return workflow.defenseAction === 'mtd';
+      if (doc.branch === 'nothing') return workflow.defenseAction === 'nothing';
+      if (doc.branch === 'answer-cc') return workflow.defenseAction === 'answer' && workflow.hasCounterclaim === true;
+    } else {
+      if (doc.branch === 'answer') return workflow.defenseStrategy === 'answer';
+      if (doc.branch === 'answer-cc') return workflow.defenseStrategy === 'answer' && workflow.hasCounterclaim === true;
+      if (doc.branch === 'mtd') return workflow.defenseStrategy === 'mtd';
+    }
+    return false;
+  }
+
+  function isBranchUnresolved(doc: WorkflowDoc): boolean {
+    if (!doc.branch) return false;
+    if (workflow.role === 'prosecution') {
+      if (['mtd', 'nothing', 'answer-cc'].includes(doc.branch)) return workflow.defenseAction === null;
+    } else {
+      if (['answer', 'answer-cc', 'mtd'].includes(doc.branch)) return workflow.defenseStrategy === null;
+    }
+    return false;
+  }
+
+  function isDocComplete(doc: WorkflowDoc): boolean {
+    return workflow.completedDocs.includes(doc.id);
+  }
+
+  function isDocActive(doc: WorkflowDoc): boolean {
+    const step = workflow.step;
+    const id = doc.id;
+    if (id === 'hold-notice') return step.includes('hold-notice');
+    if (id === 'demand-letter') return step.includes('demand-letter');
+    if (id === 'complaint') return step.includes('complaint') && !step.includes('analysis') || step === 'p-complaint-analysis' || step.startsWith('p-complaint');
+    if (id === 'cover-sheet') return step.includes('cover-sheet');
+    if (id === 'opposition-mtd') return step.includes('opp-mtd');
+    if (id === 'default-motion') return step.includes('default-motion');
+    if (id === 'reply-counterclaim') return step.includes('reply-cc');
+    if (id === 'answer') return step.includes('answer') || step === 'd-fact-review';
+    if (id === 'counterclaim') return step.includes('d-cc-') && !step.includes('decision');
+    if (id === 'mtd') return step.includes('mtd') && !step.includes('opp') && !step.includes('reply') || step === 'd-defect-scan' || step === 'd-ground-select' || step === 'd-case-law';
+    if (id === 'reply-mtd') return step.includes('d-reply-');
+    return false;
+  }
+
+  const phases = $derived([...new Set(docs.map(d => d.phase))].sort());
 </script>
 
-<aside class="w-64 border-r bg-muted/20 flex flex-col h-full">
-  <div class="p-4 border-b">
-    <h2 class="font-bold text-xl tracking-tight text-primary">
-      SEER
-    </h2>
-    <p class="text-xs text-muted-foreground font-medium uppercase tracking-wider mt-0.5">by Protego AI</p>
+<aside class="w-72 border-r border-zinc-200 bg-[#fafafa] flex flex-col h-full shadow-[1px_0_10px_rgba(0,0,0,0.02)] z-10 relative">
+  <div class="p-6 border-b border-zinc-200">
+    <h2 class="font-medium text-lg tracking-[0.2em] text-zinc-900 uppercase">SEER</h2>
+    <p class="text-[10px] text-zinc-500 tracking-widest uppercase mt-1">by Protego AI</p>
   </div>
-  
+
   <div class="p-4 flex-1 overflow-y-auto">
-    <button class="w-full flex items-center gap-2 text-sm font-medium bg-[#0f172a] text-primary-foreground hover:bg-[#1e293b] px-4 py-2 rounded-md mb-6 transition-colors">
+    <button onclick={() => workflow.reset()} class="w-full flex items-center justify-center gap-2 text-sm font-medium bg-black text-white hover:bg-zinc-800 px-4 py-2.5 rounded-sm mb-6 transition-colors">
       <Plus class="w-4 h-4" />
-      Start New LAW SUIT
+      NEW MATTER
     </button>
-    
-    <div class="space-y-1">
-      <h3 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-2">Recent Cases</h3>
-      <button class="w-full flex items-center gap-2 text-sm px-2 py-1.5 rounded-md hover:bg-muted text-left">
-        <FileText class="w-4 h-4 text-muted-foreground" />
-        CASE 1
-      </button>
-      <button class="w-full flex items-center gap-2 text-sm px-2 py-1.5 rounded-md hover:bg-muted text-left">
-        <FileText class="w-4 h-4 text-muted-foreground" />
-        CASE 2
-      </button>
-      <button class="w-full flex items-center gap-2 text-sm px-2 py-1.5 rounded-md hover:bg-muted text-left">
-        <FileText class="w-4 h-4 text-muted-foreground" />
-        CASE 3
-      </button>
-    </div>
+
+    {#if workflow.role}
+      <div class="space-y-6">
+        {#each phases as phase}
+          <div>
+            <h3 class="text-[10px] font-medium text-zinc-400 uppercase tracking-widest mb-3 px-3">{getPhaseLabel(phase)}</h3>
+            <div class="space-y-0.5">
+              {#each docs.filter(d => d.phase === phase) as doc}
+                {#if isBranchUnresolved(doc)}
+                  <div class="flex items-center gap-3 text-sm px-3 py-2 text-zinc-300">
+                    <Lock class="w-3.5 h-3.5" />
+                    <span class="text-xs">{doc.name}</span>
+                  </div>
+                {:else if isDocVisible(doc)}
+                  <div class="flex items-center gap-3 text-sm px-3 py-2 rounded-sm transition-colors {isDocActive(doc) ? 'bg-zinc-200/60 text-zinc-900 font-medium' : isDocComplete(doc) ? 'text-zinc-500' : 'text-zinc-400'}">
+                    {#if isDocComplete(doc)}
+                      <CheckCircle2 class="w-3.5 h-3.5 text-zinc-900 shrink-0" />
+                    {:else if isDocActive(doc)}
+                      <div class="w-3.5 h-3.5 rounded-full border-2 border-zinc-900 shrink-0 flex items-center justify-center">
+                        <div class="w-1.5 h-1.5 rounded-full bg-zinc-900"></div>
+                      </div>
+                    {:else}
+                      <Circle class="w-3.5 h-3.5 text-zinc-300 shrink-0" />
+                    {/if}
+                    <span class="text-xs">{doc.name}</span>
+                    {#if doc.type === 'substantive'}
+                      <ShieldAlert class="w-3 h-3 text-zinc-300 ml-auto shrink-0" />
+                    {/if}
+                  </div>
+                {/if}
+              {/each}
+            </div>
+          </div>
+        {/each}
+      </div>
+    {:else}
+      <div class="px-3 py-8 text-center">
+        <p class="text-xs text-zinc-400">Select a role to begin</p>
+      </div>
+    {/if}
   </div>
 </aside>
