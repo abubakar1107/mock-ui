@@ -60,16 +60,16 @@
   const phases = $derived([...new Set(docs.map(d => d.phase))].sort());
 </script>
 
-<aside class="w-72 border-r border-zinc-200 bg-[#fafafa] flex flex-col h-full shadow-[1px_0_10px_rgba(0,0,0,0.02)] z-10 relative">
+<aside class="w-72 border-r border-zinc-300/60 bg-[#f9f9f6] flex flex-col h-full shadow-[1px_0_10px_rgba(0,0,0,0.04)] z-10 relative">
   <div class="p-6 border-b border-zinc-200">
     <h2 class="font-medium text-lg tracking-[0.2em] text-zinc-900 uppercase">SEER</h2>
     <p class="text-[10px] text-zinc-500 tracking-widest uppercase mt-1">by Protego AI</p>
   </div>
 
   <div class="p-4 flex-1 overflow-y-auto">
-    <button onclick={() => workflow.reset()} class="w-full flex items-center justify-center gap-2 text-sm font-medium bg-black text-white hover:bg-zinc-800 px-4 py-2.5 rounded-sm mb-6 transition-colors">
+    <button onclick={() => workflow.reset()} class="w-full flex items-center justify-center gap-2 text-sm font-medium bg-zinc-900 text-white hover:bg-zinc-800 px-4 py-2.5 rounded-md mb-6 transition-colors shadow-sm">
       <Plus class="w-4 h-4" />
-      NEW MATTER
+      Start New Suit
     </button>
 
     {#if workflow.role}
