@@ -2,17 +2,9 @@
   import { FileText, Download, CheckCircle2 } from 'lucide-svelte';
 
   let {
-    title,
-    content,
-    showExport = false,
-    isIncoming = false,
-    statusLabel = 'Draft',
+    title, content, showExport = false, isIncoming = false, statusLabel = 'Draft',
   }: {
-    title: string;
-    content: string;
-    showExport?: boolean;
-    isIncoming?: boolean;
-    statusLabel?: string;
+    title: string; content: string; showExport?: boolean; isIncoming?: boolean; statusLabel?: string;
   } = $props();
 
   let contextMessage = $derived(
@@ -22,42 +14,36 @@
   );
 </script>
 
-<div class="max-w-4xl mx-auto space-y-6 py-16">
-  <div class="text-center space-y-2 pb-2">
-    <div class="inline-flex items-center justify-center w-10 h-10 rounded-full {isIncoming ? 'bg-zinc-200' : showExport ? 'bg-zinc-900' : 'bg-zinc-800'}">
-      {#if showExport}
-        <CheckCircle2 class="w-5 h-5 text-white" />
-      {:else}
-        <FileText class="w-5 h-5 text-white" />
-      {/if}
-    </div>
-    <p class="text-sm font-semibold text-zinc-800 tracking-wide">{contextMessage}</p>
-  </div>
-
-  <div class="bg-white border border-zinc-300 shadow-[0_4px_20px_rgb(0,0,0,0.06)] rounded-xl overflow-hidden">
-    <div class="py-4 px-8 border-b border-zinc-200 flex items-center justify-between bg-[#fafaf8]">
+<div class="max-w-4xl mx-auto space-y-4 py-6">
+  <div class="bg-white border border-ink-ghost/60 shadow-sm rounded-xl overflow-hidden">
+    <div class="py-4 px-8 border-b border-ink-ghost/40 flex items-center justify-between bg-cream-deep/50">
       <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-full bg-zinc-200 flex items-center justify-center">
-          <FileText class="w-4 h-4 text-zinc-700" />
+        <div class="w-8 h-8 rounded-full bg-white border border-ink-ghost/50 flex items-center justify-center">
+          {#if showExport}
+            <CheckCircle2 class="w-4 h-4 text-terra" />
+          {:else}
+            <FileText class="w-4 h-4 text-ink-muted" />
+          {/if}
         </div>
-        <span class="font-semibold text-sm text-zinc-900">{title}</span>
+        <div class="flex flex-col">
+          <span class="font-semibold text-sm text-ink">{title}</span>
+          <span class="text-[11px] text-ink-faint">{contextMessage}</span>
+        </div>
       </div>
       <div class="flex items-center gap-4">
+        <span class="text-[10px] font-semibold uppercase tracking-[0.15em] px-2.5 py-1 rounded-full {showExport ? 'bg-terra-muted text-terra' : 'bg-cream-deep text-ink-muted'}">{statusLabel}</span>
         {#if showExport}
-          <button class="flex items-center gap-2 text-xs text-zinc-900 font-semibold hover:bg-zinc-100 px-4 py-2 rounded-md transition-colors border border-zinc-300 shadow-sm">
-            <Download class="w-3.5 h-3.5" />
-            Export
+          <button class="flex items-center gap-2 text-xs text-terra font-semibold hover:bg-terra-muted px-4 py-2 rounded-full transition-colors border border-terra/30">
+            <Download class="w-3.5 h-3.5" /> Export
           </button>
         {/if}
       </div>
     </div>
-    <div class="p-16 max-h-[60vh] overflow-y-auto bg-[#fafaf8]/50">
-      <div class="bg-white border border-zinc-200 shadow-sm max-w-3xl mx-auto p-16 min-h-[400px] relative">
-        <div class="absolute top-0 bottom-0 left-12 w-[1px] bg-red-500/10"></div>
-        <div class="absolute top-0 bottom-0 left-[52px] w-[1px] bg-red-500/10"></div>
-        <div class="text-[15px] font-sans whitespace-pre-wrap text-zinc-800 leading-[2.2] pl-8 relative z-10">
-          {content}
-        </div>
+    <div class="p-10 max-h-[70vh] overflow-y-auto bg-cream/30">
+      <div class="bg-white border border-ink-ghost/40 max-w-3xl mx-auto p-16 min-h-[400px] relative rounded shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
+        <div class="absolute top-0 bottom-0 left-12 w-[1px] bg-terra/8"></div>
+        <div class="absolute top-0 bottom-0 left-[52px] w-[1px] bg-terra/8"></div>
+        <div class="text-[15px] whitespace-pre-wrap text-ink-light leading-[2.2] pl-8 relative z-10">{content}</div>
       </div>
     </div>
   </div>

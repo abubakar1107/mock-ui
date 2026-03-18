@@ -12,8 +12,8 @@
   let s = $derived(sizeMap[size]);
 </script>
 
-<span class="inline-flex items-center {s.gap} text-zinc-700">
-  <Hourglass class="{s.icon} animate-hourglass" />
+<span class="inline-flex items-center {s.gap} text-ink-muted">
+  <Hourglass class="{s.icon} animate-hourglass text-terra" />
   {#if label}
     <span class="{s.text} font-medium">{label}</span>
   {/if}

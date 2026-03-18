@@ -6,11 +6,11 @@
   let { children } = $props();
 </script>
 
-<div class="flex h-screen w-full overflow-hidden bg-[#f5f5f0] text-zinc-900 font-sans">
+<div class="flex h-screen w-full overflow-hidden bg-cream text-ink">
   <Sidebar />
   <div class="flex flex-col flex-1 overflow-hidden">
     <AppHeader />
-    <main class="flex-1 overflow-hidden bg-[#f5f5f0]">
+    <main class="flex-1 overflow-hidden bg-cream">
       <div class="w-full h-full">
         {@render children()}
       </div>
