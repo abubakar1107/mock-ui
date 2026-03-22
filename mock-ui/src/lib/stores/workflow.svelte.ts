@@ -10,6 +10,10 @@ export class WorkflowState {
   selectedGrounds = $state<string[]>(['12(b)(6)']);
   stepHistory = $state<string[]>([]);
 
+  jurisdictionType = $state<'federal' | 'state' | null>(null);
+  selectedState = $state<string | null>(null);
+  selectedCourt = $state<string | null>(null);
+
   goTo(newStep: string) {
     this.stepHistory = [...this.stepHistory, this.step];
     this.step = newStep;
@@ -41,6 +45,14 @@ export class WorkflowState {
     this.hasCounterclaim = null;
     this.selectedGrounds = ['12(b)(6)'];
     this.stepHistory = [];
+    this.jurisdictionType = null;
+    this.selectedState = null;
+    this.selectedCourt = null;
+  }
+
+  setRole(role: 'prosecution' | 'defense') {
+    this.role = role;
+    this.step = role === 'prosecution' ? 'p-init' : 'd-init';
   }
 }
 

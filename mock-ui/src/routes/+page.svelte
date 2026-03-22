@@ -1,8 +1,9 @@
 <script lang="ts">
   import {
     ChevronRight, ChevronLeft, Scale, ShieldAlert, Gavel, FileText, Paperclip,
-    SendHorizonal, CheckCircle2, Check, Hourglass, Clock
+    SendHorizonal, CheckCircle2, Check, Hourglass, Clock, Building2, Landmark, MapPin
   } from 'lucide-svelte';
+  import * as Select from "$lib/components/ui/select";
   import { Button } from '$lib/components/ui/button';
   import { Textarea } from '$lib/components/ui/textarea';
   import { tick } from 'svelte';
@@ -14,6 +15,39 @@
   import DocumentPreview from '$lib/components/DocumentPreview.svelte';
   import DecisionCard from '$lib/components/DecisionCard.svelte';
   import FactReview from '$lib/components/FactReview.svelte';
+
+  const stateCourtMap: Record<string, string[]> = {
+    'California': ['Superior Court of Los Angeles County', 'Superior Court of San Francisco County', 'Superior Court of Santa Clara County', 'Superior Court of San Diego County'],
+    'New York': ['Supreme Court — New York County', 'Supreme Court — Kings County', 'Supreme Court — Erie County', 'Court of Claims'],
+    'Texas': ['District Court — Harris County', 'District Court — Dallas County', 'District Court — Travis County', 'District Court — Bexar County'],
+    'Florida': ['Circuit Court — Miami-Dade County', 'Circuit Court — Broward County', 'Circuit Court — Hillsborough County', 'Circuit Court — Orange County'],
+    'Illinois': ['Circuit Court of Cook County', 'Circuit Court — DuPage County', 'Circuit Court — Lake County'],
+    'Delaware': ['Court of Chancery', 'Superior Court — New Castle County', 'Superior Court — Kent County'],
+  };
+
+  const federalCourts = [
+    'N.D. California', 'S.D. New York', 'E.D. Texas', 'D. Delaware',
+    'S.D. Florida', 'N.D. Illinois', 'C.D. California', 'E.D. New York',
+  ];
+
+  const usStates = Object.keys(stateCourtMap);
+
+  let stateCourts = $derived(
+    workflow.selectedState ? (stateCourtMap[workflow.selectedState] ?? []) : []
+  );
+
+  let canProceed = $derived(
+    workflow.role !== null &&
+    workflow.jurisdictionType !== null &&
+    (workflow.jurisdictionType === 'federal'
+      ? workflow.selectedCourt !== null
+      : workflow.selectedState !== null && workflow.selectedCourt !== null)
+  );
+
+  function handleBeginSuit() {
+    if (!canProceed || !workflow.role) return;
+    workflow.step = workflow.role === 'prosecution' ? 'p-init' : 'd-init';
+  }
 
   let scrollContainer: HTMLDivElement | undefined = $state();
 
@@ -302,11 +336,190 @@
 
     {#if workflow.step === 'role-select'}
       <div class="h-full flex flex-col justify-center">
-        <div class="w-full max-w-xl mx-auto px-6 py-8 text-center space-y-5">
-          <h2 class="font-serif text-4xl font-bold tracking-tight text-ink italic">Welcome to SEER</h2>
-          <p class="text-ink-muted text-base max-w-md mx-auto leading-relaxed">
-            Select a side from the dropdown to begin. SEER will draft documents and run adversarial simulations on each substantive filing.
-          </p>
+        <div class="w-full max-w-3xl mx-auto px-6 py-8">
+          <div class="text-center mb-10">
+            <h2 class="font-serif text-4xl font-bold tracking-tight text-ink italic">Start a New Suit</h2>
+            <p class="text-ink-muted text-base max-w-lg mx-auto leading-relaxed mt-3">
+              Configure your matter below. SEER will draft documents and run adversarial simulations on each substantive filing.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-5">
+            <!-- Select Side -->
+            <div class="bg-white border border-ink-ghost/60 rounded-2xl p-6 space-y-5">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-terra-muted flex items-center justify-center">
+                  <Scale class="w-4.5 h-4.5 text-terra" />
+                </div>
+                <div>
+                  <h3 class="text-sm font-semibold text-ink">Select Side</h3>
+                  <p class="text-[11px] text-ink-faint mt-0.5">Your role in the litigation</p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <button
+                  onclick={() => { workflow.role = 'prosecution'; }}
+                  class="relative flex flex-col items-center gap-2.5 p-4 rounded-xl border-2 transition-all duration-150 {workflow.role === 'prosecution' ? 'border-terra bg-terra-muted' : 'border-ink-ghost/50 hover:border-ink-ghost bg-cream/50 hover:bg-cream-deep/50'}"
+                >
+                  <div class="w-10 h-10 rounded-full flex items-center justify-center {workflow.role === 'prosecution' ? 'bg-terra/15' : 'bg-cream-deep'}">
+                    <Gavel class="w-5 h-5 {workflow.role === 'prosecution' ? 'text-terra' : 'text-ink-faint'}" />
+                  </div>
+                  <span class="text-xs font-semibold {workflow.role === 'prosecution' ? 'text-terra' : 'text-ink'}">Prosecution</span>
+                  <span class="text-[10px] text-ink-faint leading-tight text-center">Plaintiff side — file suit</span>
+                  {#if workflow.role === 'prosecution'}
+                    <div class="absolute top-2.5 right-2.5 w-4 h-4 rounded-full bg-terra flex items-center justify-center">
+                      <Check class="w-2.5 h-2.5 text-white" />
+                    </div>
+                  {/if}
+                </button>
+                <button
+                  onclick={() => { workflow.role = 'defense'; }}
+                  class="relative flex flex-col items-center gap-2.5 p-4 rounded-xl border-2 transition-all duration-150 {workflow.role === 'defense' ? 'border-terra bg-terra-muted' : 'border-ink-ghost/50 hover:border-ink-ghost bg-cream/50 hover:bg-cream-deep/50'}"
+                >
+                  <div class="w-10 h-10 rounded-full flex items-center justify-center {workflow.role === 'defense' ? 'bg-terra/15' : 'bg-cream-deep'}">
+                    <ShieldAlert class="w-5 h-5 {workflow.role === 'defense' ? 'text-terra' : 'text-ink-faint'}" />
+                  </div>
+                  <span class="text-xs font-semibold {workflow.role === 'defense' ? 'text-terra' : 'text-ink'}">Defense</span>
+                  <span class="text-[10px] text-ink-faint leading-tight text-center">Defendant side — respond</span>
+                  {#if workflow.role === 'defense'}
+                    <div class="absolute top-2.5 right-2.5 w-4 h-4 rounded-full bg-terra flex items-center justify-center">
+                      <Check class="w-2.5 h-2.5 text-white" />
+                    </div>
+                  {/if}
+                </button>
+              </div>
+            </div>
+
+            <!-- Select Jurisdiction -->
+            <div class="bg-white border border-ink-ghost/60 rounded-2xl p-6 space-y-5">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-terra-muted flex items-center justify-center">
+                  <Landmark class="w-4.5 h-4.5 text-terra" />
+                </div>
+                <div>
+                  <h3 class="text-sm font-semibold text-ink">Select Jurisdiction</h3>
+                  <p class="text-[11px] text-ink-faint mt-0.5">Court system for your matter</p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <button
+                  onclick={() => { workflow.jurisdictionType = 'federal'; workflow.selectedState = null; workflow.selectedCourt = null; }}
+                  class="relative flex flex-col items-center gap-2.5 p-4 rounded-xl border-2 transition-all duration-150 {workflow.jurisdictionType === 'federal' ? 'border-terra bg-terra-muted' : 'border-ink-ghost/50 hover:border-ink-ghost bg-cream/50 hover:bg-cream-deep/50'}"
+                >
+                  <div class="w-10 h-10 rounded-full flex items-center justify-center {workflow.jurisdictionType === 'federal' ? 'bg-terra/15' : 'bg-cream-deep'}">
+                    <Landmark class="w-5 h-5 {workflow.jurisdictionType === 'federal' ? 'text-terra' : 'text-ink-faint'}" />
+                  </div>
+                  <span class="text-xs font-semibold {workflow.jurisdictionType === 'federal' ? 'text-terra' : 'text-ink'}">Federal</span>
+                  <span class="text-[10px] text-ink-faint leading-tight text-center">U.S. District Courts</span>
+                  {#if workflow.jurisdictionType === 'federal'}
+                    <div class="absolute top-2.5 right-2.5 w-4 h-4 rounded-full bg-terra flex items-center justify-center">
+                      <Check class="w-2.5 h-2.5 text-white" />
+                    </div>
+                  {/if}
+                </button>
+                <button
+                  onclick={() => { workflow.jurisdictionType = 'state'; workflow.selectedCourt = null; }}
+                  class="relative flex flex-col items-center gap-2.5 p-4 rounded-xl border-2 transition-all duration-150 {workflow.jurisdictionType === 'state' ? 'border-terra bg-terra-muted' : 'border-ink-ghost/50 hover:border-ink-ghost bg-cream/50 hover:bg-cream-deep/50'}"
+                >
+                  <div class="w-10 h-10 rounded-full flex items-center justify-center {workflow.jurisdictionType === 'state' ? 'bg-terra/15' : 'bg-cream-deep'}">
+                    <Building2 class="w-5 h-5 {workflow.jurisdictionType === 'state' ? 'text-terra' : 'text-ink-faint'}" />
+                  </div>
+                  <span class="text-xs font-semibold {workflow.jurisdictionType === 'state' ? 'text-terra' : 'text-ink'}">State</span>
+                  <span class="text-[10px] text-ink-faint leading-tight text-center">State & county courts</span>
+                  {#if workflow.jurisdictionType === 'state'}
+                    <div class="absolute top-2.5 right-2.5 w-4 h-4 rounded-full bg-terra flex items-center justify-center">
+                      <Check class="w-2.5 h-2.5 text-white" />
+                    </div>
+                  {/if}
+                </button>
+              </div>
+
+              {#if workflow.jurisdictionType === 'federal'}
+                <div class="space-y-2">
+                  <label class="text-[11px] font-medium text-ink-muted uppercase tracking-wider">District Court</label>
+                  <Select.Root
+                    type="single"
+                    value={workflow.selectedCourt ?? undefined}
+                    onValueChange={(v) => { workflow.selectedCourt = v ?? null; }}
+                  >
+                    <Select.Trigger class="w-full bg-cream/60 border-ink-ghost/60 text-sm font-medium text-ink rounded-lg">
+                      {#if workflow.selectedCourt}
+                        <span class="flex items-center gap-2 text-ink"><MapPin class="w-3.5 h-3.5 text-terra" />{workflow.selectedCourt}</span>
+                      {:else}
+                        <span class="text-ink-faint">Select district...</span>
+                      {/if}
+                    </Select.Trigger>
+                    <Select.Content class="bg-white border-ink-ghost/60 rounded-xl">
+                      {#each federalCourts as court}
+                        <Select.Item value={court} label={court}>{court}</Select.Item>
+                      {/each}
+                    </Select.Content>
+                  </Select.Root>
+                </div>
+              {/if}
+
+              {#if workflow.jurisdictionType === 'state'}
+                <div class="space-y-3">
+                  <div class="space-y-2">
+                    <label class="text-[11px] font-medium text-ink-muted uppercase tracking-wider">State</label>
+                    <Select.Root
+                      type="single"
+                      value={workflow.selectedState ?? undefined}
+                      onValueChange={(v) => { workflow.selectedState = v ?? null; workflow.selectedCourt = null; }}
+                    >
+                      <Select.Trigger class="w-full bg-cream/60 border-ink-ghost/60 text-sm font-medium text-ink rounded-lg">
+                        {#if workflow.selectedState}
+                          <span class="flex items-center gap-2 text-ink"><MapPin class="w-3.5 h-3.5 text-terra" />{workflow.selectedState}</span>
+                        {:else}
+                          <span class="text-ink-faint">Select state...</span>
+                        {/if}
+                      </Select.Trigger>
+                      <Select.Content class="bg-white border-ink-ghost/60 rounded-xl">
+                        {#each usStates as st}
+                          <Select.Item value={st} label={st}>{st}</Select.Item>
+                        {/each}
+                      </Select.Content>
+                    </Select.Root>
+                  </div>
+                  {#if workflow.selectedState}
+                    <div class="space-y-2">
+                      <label class="text-[11px] font-medium text-ink-muted uppercase tracking-wider">Court</label>
+                      <Select.Root
+                        type="single"
+                        value={workflow.selectedCourt ?? undefined}
+                        onValueChange={(v) => { workflow.selectedCourt = v ?? null; }}
+                      >
+                        <Select.Trigger class="w-full bg-cream/60 border-ink-ghost/60 text-sm font-medium text-ink rounded-lg">
+                          {#if workflow.selectedCourt}
+                            <span class="flex items-center gap-2 text-ink"><Landmark class="w-3.5 h-3.5 text-terra" />{workflow.selectedCourt}</span>
+                          {:else}
+                            <span class="text-ink-faint">Select court...</span>
+                          {/if}
+                        </Select.Trigger>
+                        <Select.Content class="bg-white border-ink-ghost/60 rounded-xl">
+                          {#each stateCourts as court}
+                            <Select.Item value={court} label={court}>{court}</Select.Item>
+                          {/each}
+                        </Select.Content>
+                      </Select.Root>
+                    </div>
+                  {/if}
+                </div>
+              {/if}
+            </div>
+          </div>
+
+          <div class="mt-8 flex justify-center">
+            <button
+              onclick={handleBeginSuit}
+              disabled={!canProceed}
+              class="flex items-center gap-2.5 text-sm font-semibold px-8 py-3 rounded-full transition-all duration-200 {canProceed ? 'bg-terra text-white hover:bg-terra-dark shadow-md shadow-terra/20' : 'bg-ink-ghost/30 text-ink-faint cursor-not-allowed'}"
+            >
+              Begin Suit <ChevronRight class="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
 
