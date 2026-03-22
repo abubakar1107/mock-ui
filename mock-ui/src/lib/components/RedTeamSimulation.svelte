@@ -1,8 +1,9 @@
 <script lang="ts">
   import {
-    Hourglass, CheckCircle2, Cpu, FileText, Swords, ShieldAlert,
+    CheckCircle2, Cpu, FileText, Swords, ShieldAlert,
     Search, Brain, Users, ScanLine, Scale, ChevronDown, Wrench, Database
   } from 'lucide-svelte';
+  import ProcessingIndicator from './ProcessingIndicator.svelte';
   import type { SimulationLog, AgentRole } from '$lib/data/mockData';
   import { agentRoster } from '$lib/data/mockData';
 
@@ -233,8 +234,8 @@
     {#if !isComplete}
       <div class="flex gap-5 relative z-10">
         <div class="flex flex-col items-center shrink-0 w-10">
-          <div class="w-10 h-10 rounded-full bg-white border-2 border-ink-ghost/60 flex items-center justify-center shrink-0 shadow-[0_0_0_3px_#fdf6f0]">
-            <Hourglass class="w-4 h-4 text-terra animate-hourglass" />
+          <div class="flex items-center justify-center shrink-0">
+            <ProcessingIndicator />
           </div>
         </div>
         <div class="flex-1 py-2.5">

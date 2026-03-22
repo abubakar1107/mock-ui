@@ -1,7 +1,7 @@
 <script lang="ts">
   import {
     ChevronRight, ChevronLeft, Scale, ShieldAlert, Gavel, FileText, Paperclip,
-    SendHorizonal, CheckCircle2, Check, Hourglass, Clock, Building2, Landmark, MapPin
+    SendHorizonal, CheckCircle2, Check, Clock, Building2, Landmark, MapPin
   } from 'lucide-svelte';
   import * as Select from "$lib/components/ui/select";
   import { Button } from '$lib/components/ui/button';
@@ -11,6 +11,7 @@
   import { prosecutionData, defenseData } from '$lib/data/mockData';
 
   import AnalysisTimeline from '$lib/components/AnalysisTimeline.svelte';
+  import ProcessingIndicator from '$lib/components/ProcessingIndicator.svelte';
   import RedTeamSimulation from '$lib/components/RedTeamSimulation.svelte';
   import DocumentPreview from '$lib/components/DocumentPreview.svelte';
   import DecisionCard from '$lib/components/DecisionCard.svelte';
@@ -734,7 +735,7 @@
           <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-cream-deep border border-ink-ghost/50"><Clock class="w-6 h-6 text-ink-muted" /></div>
           <h2 class="font-serif text-2xl font-bold text-ink italic">Response Deadline Clock</h2>
           <p class="text-ink-muted text-base">Defendant has <strong class="text-ink">21 days</strong> from service to respond under FRCP 12(a)(1)(A)(i).</p>
-          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-ink-ghost/60 bg-white text-xs font-medium text-ink-muted"><Hourglass class="w-3.5 h-3.5 text-terra animate-hourglass" /> Awaiting response...</div>
+          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-ink-ghost/60 bg-white text-xs font-medium text-ink-muted"><ProcessingIndicator /> Awaiting response...</div>
         </div>
       </div>
 

@@ -132,19 +132,6 @@
   }
 }
 
-@keyframes hourglass-flip {
-  0% { transform: rotate(0deg); }
-  25% { transform: rotate(180deg); }
-  50% { transform: rotate(180deg); }
-  75% { transform: rotate(360deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.animate-hourglass {
-  animation: hourglass-flip 2s ease-in-out infinite;
-  display: inline-flex;
-}
-
 @keyframes pulse-dot {
   0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
   40% { opacity: 1; transform: scale(1); }

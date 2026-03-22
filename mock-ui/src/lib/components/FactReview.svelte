@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Hourglass } from 'lucide-svelte';
+  import ProcessingIndicator from './ProcessingIndicator.svelte';
   import type { AnalysisStep, FactItem } from '$lib/data/mockData';
 
   let { processSteps, facts, currentStep }: {
@@ -11,26 +11,27 @@
 </script>
 
 <div class="max-w-2xl mx-auto space-y-6 py-16">
-  <div class="relative pl-8 space-y-10 mb-16">
-    <div class="absolute inset-y-2 left-[11.5px] w-[1.5px] bg-ink-ghost/50 z-0"></div>
-    {#if currentStep > 0}
-      <div
-        class="absolute top-2 left-[11.5px] w-[1.5px] bg-terra z-[1] transition-all duration-500"
-        style="height: calc({Math.min(currentStep / Math.max(processSteps.length - 1, 1), 1) * 100}% - 4px);"
-      ></div>
-    {/if}
-
+  <div class="relative mb-16">
     {#each processSteps as step, i}
       {#if i <= currentStep}
-        <div class="relative z-10 flex items-center gap-6">
-          <div class="absolute -left-[31px] p-1.5">
-            {#if i < currentStep || stepsComplete}
-              <div class="w-3 h-3 rounded-full bg-terra shadow-[0_0_0_3px_#fdf6f0,0_0_0_5px_rgba(196,83,58,0.2)]"></div>
-            {:else}
-              <Hourglass class="w-4 h-4 text-terra animate-hourglass -ml-[2px] -mt-[2px]" />
+        {@const showConnector = i < processSteps.length - 1 && i < currentStep}
+        {@const isProcessing = i === currentStep && !stepsComplete}
+        <div class="flex gap-4 relative z-10">
+          <div class="flex flex-col items-center shrink-0 w-[30px]">
+            <div class="flex items-center justify-center shrink-0 py-1">
+              {#if i < currentStep || stepsComplete}
+                <div class="w-3 h-3 rounded-full bg-terra shadow-[0_0_0_3px_#fdf6f0,0_0_0_5px_rgba(196,83,58,0.2)]"></div>
+              {:else}
+                <ProcessingIndicator />
+              {/if}
+            </div>
+            {#if showConnector || isProcessing}
+              <div class="w-[1.5px] flex-1 min-h-6 {i < currentStep ? 'bg-terra' : 'bg-ink-ghost/40'}"></div>
             {/if}
           </div>
-          <span class="text-[15px] font-medium tracking-wide {i === currentStep && !stepsComplete ? 'text-ink' : 'text-ink-muted'}">{step.text}</span>
+          <div class="flex-1 min-w-0 {showConnector || isProcessing ? 'pb-6' : ''} flex items-center">
+            <span class="text-[15px] font-medium tracking-wide {isProcessing ? 'text-ink' : 'text-ink-muted'}">{step.text}</span>
+          </div>
         </div>
       {/if}
     {/each}
@@ -66,7 +67,7 @@
 
   {#if currentStep < totalSteps - 1 && stepsComplete}
     <div class="flex items-center justify-center py-12 gap-2">
-      <Hourglass class="w-5 h-5 text-terra animate-hourglass" />
+      <ProcessingIndicator />
       <span class="text-sm text-ink-muted font-medium">Processing facts...</span>
     </div>
   {/if}
