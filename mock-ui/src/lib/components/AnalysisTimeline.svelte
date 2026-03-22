@@ -7,32 +7,30 @@
   let isComplete = $derived(currentStep >= steps.length - 1);
 </script>
 
-<div class="max-w-2xl mx-auto space-y-8 py-16">
-  <div class="relative space-y-10">
-    <!-- Background ghost line -->
-    <div class="absolute inset-y-0 left-[15px] w-[1.5px] -translate-x-1/2 bg-ink-ghost/50 z-0"></div>
-
-    <!-- Terra progress line -->
-    {#if currentStep > 0}
-      <div
-        class="absolute top-0 left-[15px] w-[1.5px] -translate-x-1/2 bg-terra z-[1] transition-all duration-500"
-        style="height: calc(100% - 16px);"
-      ></div>
-    {/if}
-
-    {#each steps as step, i}
-      {#if i <= currentStep}
-        <div class="relative z-10 flex items-center gap-4">
-          <div class="w-[30px] shrink-0 flex items-center justify-center">
+<div class="max-w-2xl mx-auto py-16">
+  {#each steps as step, i}
+    {#if i <= currentStep}
+      {@const showConnector = i < currentStep}
+      <div class="flex gap-4">
+        <div class="flex flex-col items-center shrink-0 w-[30px]">
+          <div class="flex items-center justify-center shrink-0 py-0.5">
             {#if i < currentStep || isComplete}
               <div class="w-3 h-3 rounded-full bg-terra shadow-[0_0_0_3px_#fdf6f0,0_0_0_5px_rgba(196,83,58,0.2)]"></div>
             {:else}
               <ProcessingIndicator />
             {/if}
           </div>
-          <span class="text-[15px] font-medium tracking-wide {i === currentStep && !isComplete ? 'text-ink' : 'text-ink-muted'} transition-colors duration-300">{step.text}</span>
+          {#if showConnector}
+            <div class="w-[1.5px] flex-1 min-h-6 bg-terra"></div>
+          {/if}
         </div>
-      {/if}
-    {/each}
-  </div>
+        <div class="flex-1 min-w-0 {showConnector ? 'pb-8' : ''} flex flex-col gap-1">
+          <span class="text-[15px] font-medium tracking-wide {i === currentStep && !isComplete ? 'text-ink' : 'text-ink-muted'} transition-colors duration-300">{step.text}</span>
+          {#if step.description}
+            <p class="text-[13px] leading-relaxed text-ink-faint max-w-lg">{step.description}</p>
+          {/if}
+        </div>
+      </div>
+    {/if}
+  {/each}
 </div>

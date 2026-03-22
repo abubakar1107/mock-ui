@@ -1,4 +1,4 @@
-export type AnalysisStep = { text: string };
+export type AnalysisStep = { text: string; description?: string };
 
 export type AgentRole = 'extraction' | 'lead-counsel' | 'discovery' | 'research' | 'adversarial';
 
@@ -114,9 +114,9 @@ export const defenseDocs: WorkflowDoc[] = [
 export const prosecutionData = {
   holdNotice: {
     analysisSteps: [
-      { text: 'Identifying parties and relevant custodians...' },
-      { text: 'Determining scope of preservation obligations...' },
-      { text: 'Litigation hold notice generated.' },
+      { text: 'Identifying parties and relevant custodians...', description: 'Cross-referencing John Doe\'s employment records, reporting structure, and departmental access to compile a list of all individuals and teams who may possess documents relevant to the bonus dispute and termination.' },
+      { text: 'Determining scope of preservation obligations...', description: 'Mapping all categories of potentially relevant evidence — email accounts, Slack channels, HR databases, performance dashboards, Board meeting minutes, and the employment agreement dated January 15, 2023 — to define the preservation scope.' },
+      { text: 'Litigation hold notice generated.', description: 'Formal notice drafted and addressed to all identified custodians, instructing immediate preservation of documents and ESI related to Doe v. Tech Corp Inc. Includes spoliation warning and compliance obligations.' },
     ],
     draft: `LITIGATION HOLD NOTICE
 
@@ -141,10 +141,10 @@ Issued by: Smith & Associates, Attorneys for Plaintiff`,
 
   demandLetter: {
     analysisSteps: [
-      { text: 'Reviewing employment agreement terms...' },
-      { text: 'Calculating damages and potential recovery...' },
-      { text: 'Assessing pre-suit leverage and settlement posture...' },
-      { text: 'Demand letter generated.' },
+      { text: 'Reviewing employment agreement terms...', description: 'Parsing the January 15, 2023 Employment Agreement to extract Section 4.1 (bonus entitlement), Section 4.2 (Board approval clause), and termination provisions. Identifying contractual basis for the $30,000 performance bonus claim.' },
+      { text: 'Calculating damages and potential recovery...', description: 'Computing total demand amount: $30,000 unpaid bonus principal, plus accrued prejudgment interest under California Civil Code § 3287, estimated attorney\'s fees, and anticipated litigation costs.' },
+      { text: 'Assessing pre-suit leverage and settlement posture...', description: 'Evaluating Tech Corp\'s likely exposure, reputational risk, and cost of defense to determine optimal demand positioning. Factoring in Plaintiff\'s strong performance record (Q1-Q3 targets exceeded by 12%) as leverage.' },
+      { text: 'Demand letter generated.', description: 'Formal demand letter prepared on Smith & Associates letterhead, sent via certified mail to Tech Corp\'s General Counsel. Includes 30-day payment deadline with notice of intent to file civil complaint if unresolved.' },
     ],
     draft: `LAW OFFICES OF SMITH & ASSOCIATES
 1200 Market Street, Suite 400
@@ -176,12 +176,12 @@ Smith & Associates`,
 
   complaint: {
     analysisSteps: [
-      { text: 'Identifying viable causes of action...' },
-      { text: 'Verifying subject matter and personal jurisdiction...' },
-      { text: 'Checking statute of limitations compliance...' },
-      { text: 'Drafting factual allegations with specificity...' },
-      { text: 'Assessing pleading sufficiency under Twombly/Iqbal...' },
-      { text: 'Complaint draft ready for review.' },
+      { text: 'Identifying viable causes of action...', description: 'Analyzing facts against potential claims: breach of contract (strongest — clear agreement + non-payment), breach of implied covenant of good faith (moderate), and unjust enrichment (weak). Recommending single-count complaint for maximum focus.' },
+      { text: 'Verifying subject matter and personal jurisdiction...', description: 'Confirming diversity jurisdiction under 28 U.S.C. § 1332: Plaintiff is a California citizen, Defendant is incorporated in Delaware. Calculating amount-in-controversy including $30,000 bonus, prejudgment interest, attorney\'s fees, and costs to exceed $75,000 threshold.' },
+      { text: 'Checking statute of limitations compliance...', description: 'Applying California\'s 4-year statute of limitations for written contracts (CCP § 337). Breach occurred December 1, 2023 upon termination and non-payment — filing is well within the limitations period.' },
+      { text: 'Drafting factual allegations with specificity...', description: 'Constructing 8 numbered paragraphs covering: party identities, jurisdictional basis, agreement execution, compensation terms, Plaintiff\'s full performance (with specific metrics), wrongful termination, and Defendant\'s material breach.' },
+      { text: 'Assessing pleading sufficiency under Twombly/Iqbal...', description: 'Validating each allegation against the plausibility standard from Bell Atlantic v. Twombly (550 U.S. 544) and Ashcroft v. Iqbal (556 U.S. 662). Ensuring factual specificity — not threadbare recitals — for the performance and breach elements.' },
+      { text: 'Complaint draft ready for review.', description: 'Complete Complaint for Breach of Contract drafted for the Northern District of California. Includes jurisdictional statement, 8 factual paragraphs, single cause of action, and prayer for $30,000 plus interest, costs, and attorney\'s fees.' },
     ],
     draft: `IN THE UNITED STATES DISTRICT COURT
 FOR THE NORTHERN DISTRICT OF CALIFORNIA
@@ -229,9 +229,9 @@ WHEREFORE, Plaintiff prays for judgment against Defendant for compensatory damag
 
   coverSheet: {
     analysisSteps: [
-      { text: 'Extracting case information for JS-44 form...' },
-      { text: 'Classifying cause of action and jurisdiction basis...' },
-      { text: 'Civil Cover Sheet generated.' },
+      { text: 'Extracting case information for JS-44 form...', description: 'Pulling party names, addresses, and attorney information from the Complaint. Mapping Plaintiff (San Francisco County, CA) and Defendant (Santa Clara County, CA) to the required JS-44 Civil Cover Sheet fields.' },
+      { text: 'Classifying cause of action and jurisdiction basis...', description: 'Selecting Nature of Suit code 190 (Other Contract) and jurisdiction basis as Diversity of Citizenship under 28 U.S.C. § 1332. Confirming jury demand and entering requested relief amount of $30,000 plus interest and fees.' },
+      { text: 'Civil Cover Sheet generated.', description: 'JS-44 form completed with all required sections: parties, basis of jurisdiction, nature of suit, cause of action, requested relief, and related case check. Ready for filing alongside the Complaint.' },
     ],
     draft: `CIVIL COVER SHEET (JS-44)
 
@@ -261,11 +261,11 @@ VI. RELATED CASES
 
   oppositionToMTD: {
     analysisSteps: [
-      { text: "Parsing Defendant's Motion to Dismiss..." },
-      { text: 'Identifying 12(b) grounds asserted by Defendant...' },
-      { text: 'Researching counter-precedent for each ground...' },
-      { text: 'Evaluating strength of each opposition argument...' },
-      { text: 'Opposition draft ready for review.' },
+      { text: "Parsing Defendant's Motion to Dismiss...", description: 'Ingesting Defendant\'s memorandum of points and authorities. Extracting the two primary arguments: (A) failure to allege satisfaction of conditions precedent under Otworth, and (B) discretionary bonus interpretation under Stockton Mortgage v. Tope.' },
+      { text: 'Identifying 12(b) grounds asserted by Defendant...', description: 'Defendant moves under FRCP 12(b)(6) only — failure to state a claim. No jurisdictional or procedural challenges raised. Focus areas: conclusory performance allegation and contract interpretation of Sections 4.1 and 4.2.' },
+      { text: 'Researching counter-precedent for each ground...', description: 'Retrieving authority to counter each MTD argument: Diaz v. Fed. Express Corp. (373 F.3d 1054) for mandatory "shall" language, Cal. Civ. Code § 1654 for construing ambiguity against the drafter (employer), and FRCP 8(c) for classifying Board approval as an affirmative defense.' },
+      { text: 'Evaluating strength of each opposition argument...', description: 'Scoring three opposition sections: (A) Twombly/Iqbal compliance — strong, complaint now includes specific metrics. (B) Mandatory bonus under "shall be paid" — strong with § 1654 support. (C) Board approval as affirmative defense — solid under FRCP 8(c)(1).' },
+      { text: 'Opposition draft ready for review.', description: 'Three-section Opposition brief drafted: pleading standard compliance, mandatory contract interpretation, and affirmative defense classification. Includes responsive citations and direct rebuttals to each MTD argument.' },
     ],
     draft: `PLAINTIFF'S OPPOSITION TO DEFENDANT'S MOTION TO DISMISS
 
@@ -306,9 +306,9 @@ For the foregoing reasons, Plaintiff respectfully requests that the Court deny D
 
   motionForDefault: {
     analysisSteps: [
-      { text: 'Confirming service was properly effectuated...' },
-      { text: 'Calculating response deadline expiration...' },
-      { text: 'Motion for Entry of Default generated.' },
+      { text: 'Confirming service was properly effectuated...', description: 'Verifying proof of service records: Summons and Complaint were personally served on Tech Corp Inc.\'s registered agent on February 20, 2024. Service complies with FRCP 4(h)(1)(B) for service on a corporation.' },
+      { text: 'Calculating response deadline expiration...', description: 'Under FRCP 12(a)(1)(A)(i), Defendant had 21 days from service to respond. Service date: February 20, 2024. Deadline: March 13, 2024. As of filing, Defendant has failed to plead or otherwise defend — default is proper under FRCP 55(a).' },
+      { text: 'Motion for Entry of Default generated.', description: 'Motion prepared pursuant to FRCP 55(a) requesting the Clerk enter default against Tech Corp Inc. Includes declaration of service, deadline computation, and certification that Defendant has not appeared or responded.' },
     ],
     draft: `PLAINTIFF'S MOTION FOR ENTRY OF DEFAULT
 
@@ -325,10 +325,10 @@ WHEREFORE, Plaintiff respectfully requests that the Clerk enter default against 
 
   replyToCounterclaim: {
     analysisSteps: [
-      { text: "Parsing Defendant's counterclaim allegations..." },
-      { text: 'Identifying bases for denial of each count...' },
-      { text: 'Evaluating potential affirmative defenses to counterclaim...' },
-      { text: 'Reply to Counterclaim draft ready for review.' },
+      { text: "Parsing Defendant's counterclaim allegations...", description: 'Extracting two counts from Defendant\'s Counterclaim: Count I alleges breach of confidentiality under Section 8 of the Employment Agreement based on a January 15, 2024 LinkedIn article. Count II seeks $15,000 reimbursement for AI/ML training costs under Section 9.3.' },
+      { text: 'Identifying bases for denial of each count...', description: 'Analyzing each counterclaim paragraph against known facts. Count I: Plaintiff did not disclose confidential information — the LinkedIn article discussed publicly available industry trends. Count II: Section 9.3 reimbursement applies only to voluntary resignation, not involuntary termination.' },
+      { text: 'Evaluating potential affirmative defenses to counterclaim...', description: 'Identifying three affirmative defenses: (1) no confidential information was actually disclosed, (2) Section 9.3 is inapplicable to termination without cause per its plain language and Cal. Labor Code § 2802, and (3) the counterclaim was filed in bad faith as retaliation — only 48 hours after Plaintiff initiated suit.' },
+      { text: 'Reply to Counterclaim draft ready for review.', description: 'Complete Reply drafted with specific denials for each counterclaim paragraph per FRCP 8(b)(2), three affirmative defenses with supporting authority, and factual bases for each denial addressing the LinkedIn article and training cost provisions.' },
     ],
     draft: `PLAINTIFF'S REPLY TO DEFENDANT'S COUNTERCLAIM
 
@@ -415,9 +415,9 @@ WHEREFORE, Defendant demands judgment of $15,000 plus damages for breach of conf
 export const defenseData = {
   holdNotice: {
     analysisSteps: [
-      { text: 'Identifying company custodians and data sources...' },
-      { text: 'Determining scope of document preservation...' },
-      { text: 'Litigation hold notice generated.' },
+      { text: 'Identifying company custodians and data sources...', description: 'Scanning Tech Corp Inc.\'s organizational chart, IT systems, and departmental structure to identify all personnel with access to John Doe\'s employment records, performance data, termination communications, and bonus program documentation.' },
+      { text: 'Determining scope of document preservation...', description: 'Defining preservation categories: personnel files, the Employment Agreement and amendments, performance dashboards, HR evaluations, Board minutes on bonus approvals, all electronic communications referencing John Doe, and IT system logs showing Doe\'s access to confidential materials.' },
+      { text: 'Litigation hold notice generated.', description: 'Formal preservation notice issued to all identified custodians within Tech Corp Inc. Includes comprehensive scope of materials, prohibition on destruction or modification, and instruction to contact General Counsel with questions.' },
     ],
     draft: `LITIGATION HOLD NOTICE
 
@@ -443,21 +443,21 @@ Issued by: Office of the General Counsel, Tech Corp Inc.`,
 
   complaintAnalysis: {
     analysisSteps: [
-      { text: 'Parsing complaint document structure...' },
-      { text: 'Identifying cause of action: Breach of Contract...' },
-      { text: 'Scanning for jurisdictional and procedural defects...' },
-      { text: 'Running adversarial viability assessment...' },
-      { text: 'Evaluating strength of Answer vs. Motion to Dismiss...' },
-      { text: 'Analysis complete. Two viable paths identified.' },
+      { text: 'Parsing complaint document structure...', description: 'Ingesting Plaintiff\'s Complaint: 8 numbered paragraphs, single cause of action (Breach of Contract), jurisdictional statement citing 28 U.S.C. § 1332 diversity, and prayer for $30,000 plus interest, costs, and attorney\'s fees.' },
+      { text: 'Identifying cause of action: Breach of Contract...', description: 'Plaintiff alleges four elements: (1) existence of the Employment Agreement dated January 15, 2023, (2) Plaintiff\'s full performance of all obligations, (3) Defendant\'s breach by failing to pay the $30,000 bonus, and (4) resulting damages.' },
+      { text: 'Scanning for jurisdictional and procedural defects...', description: 'Evaluating all seven FRCP 12(b) grounds: subject matter jurisdiction (diversity appears proper), personal jurisdiction (Defendant\'s PPB in California), venue (N.D. Cal. proper under § 1391), process sufficiency, service, failure to state a claim (strongest ground), and party joinder.' },
+      { text: 'Running adversarial viability assessment...', description: 'Testing Plaintiff\'s allegations against Iqbal plausibility standard. Key vulnerability: Paragraph 6 ("fully performed all obligations") may be conclusory. Secondary issue: Section 4.2 Board approval language creates discretionary bonus argument under Stockton Mortgage v. Tope.' },
+      { text: 'Evaluating strength of Answer vs. Motion to Dismiss...', description: 'Comparing two response strategies. Answer path: admit undisputed facts, specifically deny Paragraphs 5-7 with performance data, assert affirmative defenses. MTD path: challenge pleading sufficiency under 12(b)(6) with Twombly/Iqbal framework. Both paths are viable with distinct risk profiles.' },
+      { text: 'Analysis complete. Two viable paths identified.', description: 'Decision point reached. Path A: File Answer with specific denials, affirmative defenses, and optional counterclaim (confidentiality + training costs). Path B: File Motion to Dismiss under 12(b)(6) targeting conclusory allegations and discretionary bonus. Awaiting strategic selection.' },
     ],
   },
 
   answer: {
     factProcessSteps: [
-      { text: 'Isolating factual allegations from paragraphs 1-8...' },
-      { text: 'Cross-referencing claims with employment agreement terms...' },
-      { text: 'Classifying each claim by default response (admit/deny)...' },
-      { text: '7 factual claims ready for review.' },
+      { text: 'Isolating factual allegations from paragraphs 1-8...', description: 'Extracting each discrete factual assertion from the Complaint — party identities, jurisdictional facts, agreement execution, compensation terms, performance claims, termination circumstances, and breach allegation — for individual evaluation.' },
+      { text: 'Cross-referencing claims with employment agreement terms...', description: 'Comparing Plaintiff\'s allegations against the actual Employment Agreement provisions: Section 4.1 (bonus terms), Section 4.2 (Board approval), Section 7.2 (non-compete), and termination clauses. Identifying discrepancies in Paragraphs 5-7.' },
+      { text: 'Classifying each claim by default response (admit/deny)...', description: 'Applying FRCP 8(b) standards to categorize each allegation. Paragraphs 1-4 (identity, jurisdiction, agreement existence, base salary) recommended as admissions. Paragraphs 5-7 (full performance, termination without cause, bonus owed) recommended as specific denials with factual bases.' },
+      { text: '7 factual claims ready for review.', description: 'All Complaint allegations classified: 4 recommended admissions and 3 recommended denials. Each denial includes specific factual basis — Q4 performance failures, cause-based termination documentation, and unsatisfied conditions precedent. Ready for attorney review and adjustment.' },
     ],
     facts: [
       { id: 1, text: 'Plaintiff John Doe resides in San Francisco, California.', status: 'admit' as const },
@@ -506,10 +506,10 @@ AFFIRMATIVE DEFENSES
 
   counterclaim: {
     analysisSteps: [
-      { text: 'Identifying potential counterclaim grounds...' },
-      { text: 'Evaluating breach of confidentiality claim viability...' },
-      { text: 'Assessing training cost reimbursement under Section 9.3...' },
-      { text: 'Counterclaim draft ready for review.' },
+      { text: 'Identifying potential counterclaim grounds...', description: 'Analyzing Defendant\'s available claims against Plaintiff: breach of confidentiality (Section 8 — LinkedIn article disclosing product roadmap), training cost reimbursement (Section 9.3 — $15,000 in AI/ML certification), and potential non-compete violations (Section 7.2).' },
+      { text: 'Evaluating breach of confidentiality claim viability...', description: 'Assessing Count I elements under California trade secret law and Section 8 of the Agreement. Plaintiff published a LinkedIn article on January 15, 2024 discussing Tech Corp product features. IT access logs confirm Plaintiff accessed confidential folders. Competitor product announcements in February 2024 suggest market harm.' },
+      { text: 'Assessing training cost reimbursement under Section 9.3...', description: 'Reviewing Section 9.3 reimbursement clause: $15,000 in specialized AI/ML training completed March 2023. Termination occurred December 1, 2023 — within the 24-month recoupment window. Analyzing whether "separation from employment" language in Section 9.3 covers involuntary termination.' },
+      { text: 'Counterclaim draft ready for review.', description: 'Two-count Counterclaim prepared: Count I (Breach of Confidentiality, 4 paragraphs with specific disclosure allegations) and Count II (Training Cost Reimbursement, 4 paragraphs citing Section 9.3 and the 24-month clawback provision). Prayer for $15,000 plus damages.' },
     ],
     draft: `DEFENDANT'S COUNTERCLAIM
 
@@ -549,14 +549,14 @@ WHEREFORE, Defendant demands judgment against Plaintiff for $15,000 in training 
 
   mtd: {
     defectScanSteps: [
-      { text: 'Analyzing subject matter jurisdiction — 12(b)(1)...' },
-      { text: 'Checking personal jurisdiction — 12(b)(2)...' },
-      { text: 'Evaluating venue propriety — 12(b)(3)...' },
-      { text: 'Reviewing sufficiency of process — 12(b)(4)...' },
-      { text: 'Checking service of process — 12(b)(5)...' },
-      { text: 'Assessing failure to state a claim — 12(b)(6)...' },
-      { text: 'Checking required party joinder — 12(b)(7)...' },
-      { text: 'Defect scan complete. Viable grounds identified.' },
+      { text: 'Analyzing subject matter jurisdiction — 12(b)(1)...', description: 'Testing diversity jurisdiction under 28 U.S.C. § 1332: Plaintiff (California citizen) vs. Defendant (Delaware incorporation, California PPB). Amount-in-controversy: $30,000 bonus claim alone may be below $75,000 threshold — but interest and fees may cure. Viability: low (15%).' },
+      { text: 'Checking personal jurisdiction — 12(b)(2)...', description: 'Defendant\'s principal place of business is San Jose, California — general jurisdiction is established in the Northern District. No basis to challenge personal jurisdiction. Viability: very low (10%).' },
+      { text: 'Evaluating venue propriety — 12(b)(3)...', description: 'Under 28 U.S.C. § 1391, venue is proper where any defendant resides (N.D. Cal.) or where a substantial part of events occurred (employment and termination in California). No viable venue challenge. Viability: minimal (8%).' },
+      { text: 'Reviewing sufficiency of process — 12(b)(4)...', description: 'Examining the Summons and Complaint for compliance with FRCP 4(a) requirements — proper court identification, party names, response deadline, and clerk signature. No apparent defects in the issued process. Viability: negligible (5%).' },
+      { text: 'Checking service of process — 12(b)(5)...', description: 'Service was executed on Tech Corp\'s registered agent via personal delivery per FRCP 4(h)(1)(B). Service method and timing appear proper. No basis to challenge. Viability: negligible (5%).' },
+      { text: 'Assessing failure to state a claim — 12(b)(6)...', description: 'Strongest ground identified. Complaint Paragraph 6 ("fully performed all obligations") is potentially conclusory under Iqbal. Section 4.2 Board approval clause creates a discretionary bonus argument per Stockton Mortgage v. Tope. Both attack vectors support a 12(b)(6) motion. Viability: high (78%).' },
+      { text: 'Checking required party joinder — 12(b)(7)...', description: 'Evaluating whether any indispensable parties are missing under FRCP 19. The dispute is bilateral between Doe and Tech Corp — no third parties necessary for complete relief. Board members are not required parties. Viability: low (12%).' },
+      { text: 'Defect scan complete. Viable grounds identified.', description: 'Full 12(b) scan complete across all seven grounds. One viable motion ground: 12(b)(6) failure to state a claim (78% viability). All other grounds fall below actionable threshold. Recommending Motion to Dismiss focused exclusively on 12(b)(6) with Twombly/Iqbal framework.' },
     ],
     grounds: [
       { rule: '12(b)(1)', name: 'Lack of Subject Matter Jurisdiction', viability: 15, rationale: 'Diversity jurisdiction appears proper — parties are diverse and amount-in-controversy exceeds $75,000.' },
@@ -568,11 +568,11 @@ WHEREFORE, Defendant demands judgment against Plaintiff for $15,000 in training 
       { rule: '12(b)(7)', name: 'Failure to Join Required Party', viability: 12, rationale: 'No obviously missing indispensable parties.' },
     ],
     caseLawResearchSteps: [
-      { text: 'Searching pleading standard precedent...' },
-      { text: 'Analyzing Twombly/Iqbal framework for breach of contract claims...' },
-      { text: 'Researching California bonus condition cases...' },
-      { text: 'Compiling supporting citations...' },
-      { text: 'Case law research complete.' },
+      { text: 'Searching pleading standard precedent...', description: 'Querying CourtListener and LexisNexis for FRCP 12(b)(6) authority on pleading standards. Retrieving foundational cases: Bell Atlantic v. Twombly (550 U.S. 544) establishing the plausibility standard and retiring the Conley "no set of facts" test.' },
+      { text: 'Analyzing Twombly/Iqbal framework for breach of contract claims...', description: 'Applying Ashcroft v. Iqbal (556 U.S. 662) two-step analysis: (1) identify and discard conclusory statements, (2) assess whether remaining factual allegations plausibly state a claim. Mapping Plaintiff\'s "fully performed" allegation to Iqbal\'s "threadbare recitals" category.' },
+      { text: 'Researching California bonus condition cases...', description: 'Retrieving California-specific authority on conditional bonus provisions. Key finding: Stockton Mortgage v. Tope (233 Cal.App.4th 437, 2014) — bonus conditioned on board or management approval is discretionary. Also analyzing Otworth v. Southern Pac. Transp. Co. (166 Cal.App.3d 452) on conditions precedent pleading requirements.' },
+      { text: 'Compiling supporting citations...', description: 'Organizing retrieved authority into the brief\'s argument structure: Twombly/Iqbal for Section A (pleading standard), Otworth for conditions precedent specificity, Stockton Mortgage for Section B (discretionary bonus), and Lee v. City of L.A. for judicial notice of the Employment Agreement.' },
+      { text: 'Case law research complete.', description: 'Four primary authorities compiled with relevance scores: Twombly (95%), Iqbal (92%), Otworth (85%), Stockton Mortgage (78%). All citations verified as current good law with no adverse subsequent history. Research package ready for integration into the Motion to Dismiss.' },
     ],
     caseLaw: [
       { name: 'Bell Atlantic Corp. v. Twombly', citation: '550 U.S. 544 (2007)', relevance: 95, summary: 'Complaint must contain sufficient factual matter to state a claim that is plausible on its face — formulaic recitation of elements insufficient.' },
@@ -624,11 +624,11 @@ For the foregoing reasons, Defendant respectfully requests that the Court dismis
 
   replyInSupport: {
     analysisSteps: [
-      { text: "Parsing Plaintiff's Opposition to Motion to Dismiss..." },
-      { text: 'Identifying concessions and admissions in opposition...' },
-      { text: 'Evaluating new arguments raised in opposition...' },
-      { text: 'Preparing point-by-point rebuttal...' },
-      { text: 'Reply in Support draft ready for review.' },
+      { text: "Parsing Plaintiff's Opposition to Motion to Dismiss...", description: 'Ingesting Plaintiff\'s Opposition brief. Extracting three argument sections: (A) Complaint satisfies Twombly/Iqbal, (B) bonus is mandatory under "shall be paid" language in Section 4.1, and (C) Board approval is an affirmative defense under FRCP 8(c), not a pleading deficiency.' },
+      { text: 'Identifying concessions and admissions in opposition...', description: 'Analyzing Opposition for implicit concessions. Key findings: Plaintiff does not dispute that the Board approval clause exists in Section 4.2, does not dispute the "sole discretion" language, and does not offer alternative contract interpretation for the conditional structure.' },
+      { text: 'Evaluating new arguments raised in opposition...', description: 'Assessing Plaintiff\'s reliance on Cal. Civ. Code § 1654 (ambiguity construed against drafter). Preparing counter: this canon applies only to genuinely ambiguous terms — "sole discretion" is unambiguous. Also evaluating FRCP 8(c) classification argument and its limitations.' },
+      { text: 'Preparing point-by-point rebuttal...', description: 'Constructing four-section Reply: (A) "fully performed" is conclusory per Iqbal with specific analogy, (B) plain language of "sole discretion" defeats mandatory reading citing Winet v. Price, (C) § 1654 is inapplicable to unambiguous terms, and (D) dismissal should be with prejudice because amendment is futile.' },
+      { text: 'Reply in Support draft ready for review.', description: 'Complete Reply in Support of Motion to Dismiss drafted with responsive arguments to each Opposition section, new authority (Winet v. Price on unambiguous "sole discretion"), futility argument for with-prejudice dismissal, and request for judicial notice of the Employment Agreement.' },
     ],
     draft: `DEFENDANT'S REPLY IN SUPPORT OF MOTION TO DISMISS
 

@@ -25,12 +25,17 @@
                 <ProcessingIndicator />
               {/if}
             </div>
-            {#if showConnector || isProcessing}
-              <div class="w-[1.5px] flex-1 min-h-6 {i < currentStep ? 'bg-terra' : 'bg-ink-ghost/40'}"></div>
+            {#if showConnector}
+              <div class="w-[1.5px] flex-1 min-h-6 bg-terra"></div>
             {/if}
           </div>
-          <div class="flex-1 min-w-0 {showConnector || isProcessing ? 'pb-6' : ''} flex items-center">
-            <span class="text-[15px] font-medium tracking-wide {isProcessing ? 'text-ink' : 'text-ink-muted'}">{step.text}</span>
+          <div class="flex-1 min-w-0 {showConnector ? 'pb-6' : ''} flex items-start">
+            <div class="flex flex-col gap-1">
+              <span class="text-[15px] font-medium tracking-wide {isProcessing ? 'text-ink' : 'text-ink-muted'}">{step.text}</span>
+              {#if step.description}
+                <p class="text-[13px] leading-relaxed text-ink-faint max-w-lg">{step.description}</p>
+              {/if}
+            </div>
           </div>
         </div>
       {/if}
