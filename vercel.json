@@ -1,0 +1,4 @@
+{
+	"installCommand": "cd mock-ui && npm install",
+	"buildCommand": "cd mock-ui && npm run build && mkdir -p ../.vercel && mv .vercel/output ../.vercel/output"
+}
