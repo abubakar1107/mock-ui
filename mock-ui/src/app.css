@@ -105,6 +105,16 @@
   --color-ink-faint: #b0a89e;
   --color-ink-ghost: #d9cfc3;
 
+  --color-ally: #5a8068;
+  --color-ally-light: #edf4ef;
+  --color-ally-muted: #bdd4c5;
+  --color-ally-deep: #2d4d3a;
+
+  --color-rival: #8b6578;
+  --color-rival-light: #f4eff2;
+  --color-rival-muted: #d4c2cb;
+  --color-rival-deep: #4a2f3e;
+
   --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
   --font-serif: 'Playfair Display', ui-serif, Georgia, serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
