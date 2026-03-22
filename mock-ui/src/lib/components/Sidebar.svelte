@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { Plus, CheckCircle2, Circle, ShieldAlert, Lock, Scale, Briefcase } from 'lucide-svelte';
+  import { Plus, CheckCircle2, Circle, ShieldAlert, Lock, Scale, Briefcase, ChevronDown } from 'lucide-svelte';
+  import * as Select from "$lib/components/ui/select";
   import { workflow } from '$lib/stores/workflow.svelte';
   import { prosecutionDocs, defenseDocs, type WorkflowDoc } from '$lib/data/mockData';
 
@@ -11,6 +12,10 @@
   ];
 
   let selectedSuit = $state<string | null>(null);
+
+  const activeSuits = dummySuits.filter(s => s.status === 'Active');
+  let selectedActiveSuit = $state<string | null>(activeSuits.length === 1 ? activeSuits[0].id : null);
+  let selectedActiveSuitData = $derived(dummySuits.find(s => s.id === selectedActiveSuit) ?? null);
 
   let docs = $derived(workflow.role === 'prosecution' ? prosecutionDocs : workflow.role === 'defense' ? defenseDocs : []);
 
@@ -116,7 +121,38 @@
     </div>
 
     <div class="border-t border-ink-ghost/40 pt-4">
-      {#if workflow.role}
+      <div class="px-3 mb-4">
+        <h3 class="text-[10px] font-medium text-ink-faint uppercase tracking-widest mb-2">Active Suit</h3>
+        <Select.Root
+          type="single"
+          value={selectedActiveSuit ?? undefined}
+          onValueChange={(v) => { selectedActiveSuit = v ?? null; }}
+        >
+          <Select.Trigger class="w-full bg-white border-ink-ghost/60 text-xs font-medium text-ink rounded-lg h-8">
+            {#if selectedActiveSuitData}
+              <span class="flex items-center gap-2 text-ink">
+                <div class="w-1.5 h-1.5 rounded-full bg-terra shrink-0"></div>
+                {selectedActiveSuitData.name}
+              </span>
+            {:else}
+              <span class="text-ink-faint">Select a suit...</span>
+            {/if}
+          </Select.Trigger>
+          <Select.Content class="bg-white border-ink-ghost/60 rounded-xl">
+            {#each activeSuits as suit}
+              <Select.Item value={suit.id} label={suit.name}>
+                <div class="flex items-center gap-2">
+                  <div class="w-1.5 h-1.5 rounded-full bg-terra shrink-0"></div>
+                  <span>{suit.name}</span>
+                  <span class="text-ink-faint ml-auto text-[10px]">{suit.role}</span>
+                </div>
+              </Select.Item>
+            {/each}
+          </Select.Content>
+        </Select.Root>
+      </div>
+
+      {#if selectedActiveSuit && workflow.role}
         <div class="space-y-6">
           {#each phases as phase}
             <div>
@@ -150,9 +186,13 @@
             </div>
           {/each}
         </div>
-      {:else}
+      {:else if selectedActiveSuit && !workflow.role}
         <div class="px-3 py-4 text-center">
           <p class="text-xs text-ink-faint">Select a role to begin</p>
+        </div>
+      {:else}
+        <div class="px-3 py-3 text-center">
+          <p class="text-xs text-ink-faint">Select an active suit to view status</p>
         </div>
       {/if}
     </div>
