@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Gavel, ShieldAlert } from 'lucide-svelte';
+  import { Gavel, ShieldAlert, Archive } from 'lucide-svelte';
   import { workflow } from '$lib/stores/workflow.svelte';
 
   let isPreStart = $derived(
@@ -23,6 +23,14 @@
       {/if}
     {:else if workflow.role}
       <span class="text-sm font-medium text-ink">Doe v. TechCorp</span>
+      <a
+        href="/dungeon"
+        target="_blank"
+        class="flex items-center gap-1.5 text-[11px] font-semibold text-ink-muted hover:text-terra px-3 py-1.5 rounded-full bg-cream-deep border border-ink-ghost/50 hover:border-terra/40 hover:bg-terra-muted transition-all"
+      >
+        <Archive class="w-3.5 h-3.5" />
+        Dungeon
+      </a>
     {/if}
   </div>
 

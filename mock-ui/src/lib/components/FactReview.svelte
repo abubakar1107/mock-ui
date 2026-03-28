@@ -1,7 +1,8 @@
 <script lang="ts">
-  import { PenTool, Wrench, ChevronDown } from 'lucide-svelte';
+  import { PenTool, Wrench, ChevronDown, Pause, Play, PauseCircle } from 'lucide-svelte';
   import ProcessingIndicator from './ProcessingIndicator.svelte';
   import type { AnalysisStep, FactItem } from '$lib/data/mockData';
+  import { workflow } from '$lib/stores/workflow.svelte';
 
   let { processSteps, facts, currentStep }: {
     processSteps: AnalysisStep[]; facts: FactItem[]; currentStep: number;
@@ -33,6 +34,8 @@
             <div class="flex items-center justify-center shrink-0 py-1">
               {#if i < currentStep || stepsComplete}
                 <div class="w-3 h-3 rounded-full bg-terra shadow-[0_0_0_3px_#fdf6f0,0_0_0_5px_rgba(196,83,58,0.2)]"></div>
+              {:else if workflow.paused}
+                <PauseCircle class="w-5 h-5 text-amber-500" />
               {:else}
                 <ProcessingIndicator />
               {/if}
@@ -46,7 +49,24 @@
           <div class="flex-1 min-w-0 {showConnector ? 'pb-6' : ''} flex gap-6">
             <!-- Left: text + description -->
             <div class="flex-1 min-w-0 flex flex-col gap-1">
-              <span class="text-[15px] font-medium tracking-wide {isProcessing ? 'text-ink' : 'text-ink-muted'}">{step.text}</span>
+              <div class="flex items-center gap-2">
+                <span class="text-[15px] font-medium tracking-wide {isProcessing ? 'text-ink' : 'text-ink-muted'}">{step.text}</span>
+                {#if isProcessing}
+                  <button
+                    onclick={() => workflow.paused ? workflow.resume() : workflow.pause()}
+                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold transition-all {workflow.paused ? 'bg-amber-50 text-amber-600 border border-amber-300/60 hover:bg-amber-100' : 'bg-cream-deep text-ink-faint border border-ink-ghost/40 hover:text-ink-muted hover:border-ink-ghost'}"
+                  >
+                    {#if workflow.paused}
+                      <Play class="w-3 h-3" /> Resume
+                    {:else}
+                      <Pause class="w-3 h-3" /> Pause
+                    {/if}
+                  </button>
+                {/if}
+              </div>
+              {#if isProcessing && workflow.paused}
+                <span class="text-[11px] font-medium text-amber-600">Paused — use the chat bar below to send instructions</span>
+              {/if}
               {#if step.description}
                 <p class="text-[13px] leading-relaxed text-ink-faint">{step.description}</p>
               {/if}
@@ -140,9 +160,24 @@
   {/if}
 
   {#if currentStep < totalSteps - 1 && stepsComplete}
-    <div class="flex items-center justify-center py-12 gap-2">
-      <ProcessingIndicator />
-      <span class="text-sm text-ink-muted font-medium">Processing facts...</span>
+    <div class="flex items-center justify-center py-12 gap-3">
+      {#if workflow.paused}
+        <PauseCircle class="w-5 h-5 text-amber-500" />
+        <span class="text-sm text-amber-600 font-medium">Paused</span>
+      {:else}
+        <ProcessingIndicator />
+        <span class="text-sm text-ink-muted font-medium">Processing facts...</span>
+      {/if}
+      <button
+        onclick={() => workflow.paused ? workflow.resume() : workflow.pause()}
+        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold transition-all {workflow.paused ? 'bg-amber-50 text-amber-600 border border-amber-300/60 hover:bg-amber-100' : 'bg-cream-deep text-ink-faint border border-ink-ghost/40 hover:text-ink-muted hover:border-ink-ghost'}"
+      >
+        {#if workflow.paused}
+          <Play class="w-3 h-3" /> Resume
+        {:else}
+          <Pause class="w-3 h-3" /> Pause
+        {/if}
+      </button>
     </div>
   {/if}
 </div>

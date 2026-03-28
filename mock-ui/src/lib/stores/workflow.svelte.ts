@@ -1,3 +1,5 @@
+export type ChatMessage = { text: string; timestamp: Date };
+
 export class WorkflowState {
   role = $state<'prosecution' | 'defense' | null>(null);
   step = $state('role-select');
@@ -14,10 +16,23 @@ export class WorkflowState {
   selectedState = $state<string | null>(null);
   selectedCourt = $state<string | null>(null);
 
+  paused = $state(false);
+  chatMessages = $state<ChatMessage[]>([]);
+
+  pause() { this.paused = true; }
+  resume() { this.paused = false; }
+
+  sendMessage(text: string) {
+    this.chatMessages = [...this.chatMessages, { text, timestamp: new Date() }];
+    this.paused = false;
+  }
+
   goTo(newStep: string) {
     this.stepHistory = [...this.stepHistory, this.step];
     this.step = newStep;
     this.substep = 0;
+    this.paused = false;
+    this.chatMessages = [];
   }
 
   back() {
@@ -48,6 +63,8 @@ export class WorkflowState {
     this.jurisdictionType = null;
     this.selectedState = null;
     this.selectedCourt = null;
+    this.paused = false;
+    this.chatMessages = [];
   }
 
   setRole(role: 'prosecution' | 'defense') {

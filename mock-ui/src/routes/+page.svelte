@@ -16,6 +16,27 @@
   import DocumentPreview from '$lib/components/DocumentPreview.svelte';
   import DecisionCard from '$lib/components/DecisionCard.svelte';
   import FactReview from '$lib/components/FactReview.svelte';
+  import ChatBar from '$lib/components/ChatBar.svelte';
+
+  let showChatBar = $derived(
+    workflow.step !== 'role-select' && workflow.step !== 'p-init' && workflow.step !== 'd-init'
+  );
+
+  $effect(() => {
+    const snapshot = {
+      role: workflow.role,
+      step: workflow.step,
+      substep: workflow.substep,
+      completedDocs: workflow.completedDocs,
+      defenseStrategy: workflow.defenseStrategy,
+      defenseAction: workflow.defenseAction,
+      hasCounterclaim: workflow.hasCounterclaim,
+      demandResponse: workflow.demandResponse,
+    };
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('seer-workflow', JSON.stringify(snapshot));
+    }
+  });
 
   const stateCourtMap: Record<string, string[]> = {
     'California': ['Superior Court of Los Angeles County', 'Superior Court of San Francisco County', 'Superior Court of Santa Clara County', 'Superior Court of San Diego County'],
@@ -788,4 +809,8 @@
       </div>
     {/if}
   </div>
+
+  {#if showChatBar}
+    <ChatBar />
+  {/if}
 </div>

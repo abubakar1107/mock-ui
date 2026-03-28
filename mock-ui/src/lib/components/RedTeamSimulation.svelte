@@ -1,11 +1,13 @@
 <script lang="ts">
   import {
     CheckCircle2, Cpu, FileText, Swords, ShieldAlert,
-    Search, Brain, Users, ScanLine, Scale, ChevronDown, Wrench, Database
+    Search, Brain, Users, ScanLine, Scale, ChevronDown, Wrench, Database,
+    Pause, Play, PauseCircle
   } from 'lucide-svelte';
   import ProcessingIndicator from './ProcessingIndicator.svelte';
   import type { SimulationLog, AgentRole } from '$lib/data/mockData';
   import { agentRoster } from '$lib/data/mockData';
+  import { workflow } from '$lib/stores/workflow.svelte';
 
   let { logs, currentStep, opponentLabel = 'Opposing Counsel' }: {
     logs: SimulationLog[]; currentStep: number; opponentLabel?: string;
@@ -97,6 +99,22 @@
 </script>
 
 <div class="max-w-3xl mx-auto py-8">
+  <!-- Simulation Controls -->
+  {#if !isComplete}
+    <div class="mb-6 flex items-center justify-center">
+      <button
+        onclick={() => workflow.paused ? workflow.resume() : workflow.pause()}
+        class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-[11px] font-semibold uppercase tracking-wider transition-all {workflow.paused ? 'bg-amber-50 text-amber-600 border border-amber-300/60 hover:bg-amber-100 shadow-sm' : 'bg-white text-ink-muted border border-ink-ghost/60 hover:border-ink-ghost hover:text-ink shadow-sm'}"
+      >
+        {#if workflow.paused}
+          <Play class="w-3.5 h-3.5" /> Resume Simulation
+        {:else}
+          <Pause class="w-3.5 h-3.5" /> Pause Simulation
+        {/if}
+      </button>
+    </div>
+  {/if}
+
   <!-- Team Roster Header -->
   <div class="mb-10 grid grid-cols-2 gap-4">
     {#each [
@@ -235,11 +253,19 @@
       <div class="flex gap-5 relative z-10">
         <div class="flex flex-col items-center shrink-0 w-10">
           <div class="flex items-center justify-center shrink-0">
-            <ProcessingIndicator />
+            {#if workflow.paused}
+              <PauseCircle class="w-6 h-6 text-amber-500" />
+            {:else}
+              <ProcessingIndicator />
+            {/if}
           </div>
         </div>
-        <div class="flex-1 py-2.5">
-          <span class="text-xs text-ink-faint font-medium tracking-wide">Processing next step...</span>
+        <div class="flex-1 py-2.5 flex items-center gap-3">
+          {#if workflow.paused}
+            <span class="text-xs text-amber-600 font-medium tracking-wide">Simulation paused — use the chat bar to intervene</span>
+          {:else}
+            <span class="text-xs text-ink-faint font-medium tracking-wide">Processing next step...</span>
+          {/if}
         </div>
       </div>
     {/if}
